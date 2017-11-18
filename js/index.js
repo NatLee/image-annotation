@@ -23,16 +23,24 @@ if(!userName && cookieUserName){
 function clickEvent(e) {
     ary = [];
     var boxes = $(".resizeDiv");
+    var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
+    var entryImgName = 'entry.758844231=';
+    var entryBoxHeightOffset = 'entry.1881696409=';
+    var entryBoxLeftOffset = 'entry.669378490=';
+    var entryBoxSize = 'entry.676533522=';
+    var entryUser = 'entry.1877828300=';
+
+    userName = document.getElementById("userName").value;
+
+    var entryImgNameSend = entryImgName + imgName;
+    var entryUserSend = entryUser + userName;
+
+    if(!boxes.length){ // 色即是空
+        $.get(googleForm + entryImgNameSend + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
+    }
+
 
     for (var i = 0; i < boxes.length; i++) {
-        var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
-        var entryImgName = 'entry.758844231=';
-        var entryBoxHeightOffset = 'entry.1881696409=';
-        var entryBoxLeftOffset = 'entry.669378490=';
-        var entryBoxSize = 'entry.676533522=';
-        var entryUser = 'entry.1877828300=';
-
-        userName = document.getElementById("userName").value;
 
         var boxTop = boxes[i]["offsetTop"] - fixTop;
         var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
@@ -44,13 +52,11 @@ function clickEvent(e) {
         };
         ary.push(obj);
 
-        entryImgName += imgName;
-        entryBoxHeightOffset += boxTop;
-        entryBoxLeftOffset += boxLeft;
-        entryBoxSize += boxSize;
-        entryUser += userName
+        var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
+        var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
+        var entryBoxSizeSend = entryBoxSize + boxSize;
 
-        googleForm = googleForm + entryImgName + '&' + entryBoxHeightOffset + '&' + entryBoxLeftOffset + '&' + entryBoxSize + '&' + entryUser;
+        googleForm = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
         $.get(googleForm, '');
 
     }
