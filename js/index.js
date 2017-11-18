@@ -11,9 +11,7 @@ var len = JData.responseJSON.length;
 var num = Math.floor((Math.random() * len));
 var imgName = JData.responseJSON[num];
 
-
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
-
 
 var userName = document.getElementById("userName").value;
 var cookieUserName = document.cookie.split('&')[1];
@@ -112,7 +110,7 @@ function stopEvent(e) {
 
 function deleteEvent(e) {
     var len = $(".resizeDiv").length;
-    if (len == 1) {
+    if (len == 0) {
         return;
     }
     $(".resizeDiv")[len - 1].outerHTML = '';
