@@ -1,19 +1,45 @@
+
 var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
-var num = Math.floor((Math.random() * 20) + 1);
-$("img").attr("src", "./img/" + num + ".png");
+
+function readTextFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                //alert(allText);
+            }
+        }
+    }
+    rawFile.send(null);
+}
+var imgList = readTextFile('https://raw.githubusercontent.com/NatLee/AniNet/master/Listtest.txt?token=AJtRlBM5E9raCqM_sOK81_6ub7kOFiszks5aGb5swA%3D%3D');
+var lines = imgList.split('\n');
+var len = lines.length();
+//var num = Math.floor((Math.random() * 56) + 1);
+var num = Math.floor((Math.random() * len));
+//$("img").attr("src", "./img/" + num + ".png");
+$("img").attr("src", "https://i.imgur.com/" + num + ".jpg");
+
+
+var userName = document.getElementById("userName").value;
+var cookieUserName = document.cookie.split('&')[1];
+
+if(!userName && cookieUserName){
+    document.getElementById("userName").value = cookieUserName;
+}
 
 
 function clickEvent(e) {
     ary = [];
     var boxes = $(".resizeDiv");
-
-    var userName = document.getElementById("userName").value;
-    if(!userName){
-      userName = document.cookie.split('&')[1];
-      document.getElementById("userName").value = userName;
-    }
 
     for (var i = 0; i < boxes.length; i++) {
         var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
@@ -23,7 +49,7 @@ function clickEvent(e) {
         var entryBoxSize = 'entry.676533522=';
         var entryUser = 'entry.1877828300=';
 
-        var userName = document.getElementById("userName").value;
+        userName = document.getElementById("userName").value;
 
         var boxTop = boxes[i]["offsetTop"] - fixTop;
         var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
@@ -46,7 +72,6 @@ function clickEvent(e) {
 
     }
     //console.log(ary);
-    userName = document.getElementById("userName").value;
     document.cookie = "userName=&" + userName + "&";
     //console.log(userName)
 
