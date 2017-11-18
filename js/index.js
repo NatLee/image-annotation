@@ -7,17 +7,35 @@ $("img").attr("src", "./img/" + num + ".png");
 
 function clickEvent(e) {
   ary = [];
+
+  var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
+  var entryImgName = '?entry.758844231=';
+  var entryBoxHeightOffset = '?entry.1881696409=';
+  var entryBoxLeftOffset = '?entry.669378490=';
+  var entryBoxSize = '?entry.676533522=';
+  var entryUser = '?entry.1877828300=';
+
   var boxes = $(".resizeDiv");
   for(var i=0;i<boxes.length;i++){
+    var boxTop = boxes[i]["offsetTop"]-fixTop;
+    var boxLeft = boxes[i]["offsetLeft"]-fixLeft;
+    var boxSize = boxes[i]["offsetWidth"];
     var obj = {
-      top: boxes[i]["offsetTop"]-fixTop,
-      left: boxes[i]["offsetLeft"]-fixLeft,
-      width: boxes[i]["offsetWidth"]
+      top : boxTop,
+      left : boxLeft,
+      size : boxSize
     };
     ary.push(obj);
+
+    entryBoxHeightOffset += boxTop;
+    entryBoxLeftOffset += boxLeft;
+    entryBoxSize += boxSize;
+
+    googleForm = googleForm + entryImgName + entryBoxHeightOffset + entryBoxLeftOffset + entryBoxSize + entryUser;
+    $.get(googleForm, '');
+
   }
   console.log(ary);
-  $.get('https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?entry.758844231=' + String(ary) + '&entry.1877828300=' + 'GANBARUBY',"")
 
 }
 
