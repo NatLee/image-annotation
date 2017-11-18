@@ -31,8 +31,12 @@ function clickEvent(e) {
     var entryBoxSize = 'entry.676533522=';
     var entryUser = 'entry.1877828300=';
 
+    userName = document.getElementById("userName").value;
+    
+    var entryUserSend = entryUser + userName;
+
     if(!boxes.length){ // 色即是空
-        $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
+        $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + userNameSend);
     }
 
     for (var i = 0; i < boxes.length; i++) {
@@ -50,7 +54,7 @@ function clickEvent(e) {
         var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
         var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
         var entryBoxSizeSend = entryBoxSize + boxSize;
-        var entryUserSend = entryUser + userName;
+
         var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
 
         $.get(googleFormSend);
