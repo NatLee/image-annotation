@@ -8,12 +8,12 @@ $("img").attr("src", "./img/" + num + ".png");
 function clickEvent(e) {
   ary = [];
 
-  var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse';
-  var entryImgName = '?entry.758844231=';
-  var entryBoxHeightOffset = '?entry.1881696409=';
-  var entryBoxLeftOffset = '?entry.669378490=';
-  var entryBoxSize = '?entry.676533522=';
-  var entryUser = '?entry.1877828300=';
+  var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
+  var entryImgName = 'entry.758844231=';
+  var entryBoxHeightOffset = 'entry.1881696409=';
+  var entryBoxLeftOffset = 'entry.669378490=';
+  var entryBoxSize = 'entry.676533522=';
+  var entryUser = 'entry.1877828300=';
 
   var boxes = $(".resizeDiv");
   for(var i=0;i<boxes.length;i++){
