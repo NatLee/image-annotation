@@ -14,7 +14,8 @@ var imgName = JData.responseJSON[num];
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
 var cookieUserName = document.cookie.split('&')[1];
-if(!cookieUserName){
+
+if(!userName && cookieUserName){
     document.getElementById("userName").value = cookieUserName;
 }
 
@@ -30,12 +31,11 @@ function clickEvent(e) {
 
     var userName = document.getElementById("userName").value;
 
+    var entryImgNameSend = entryImgName + imgName;
+    var entryUserSend = entryUser + userName;
+
     if(!boxes.length){ // 色即是空
-        $.get(googleForm + entryImgName + imgName
-                                                                                    + '&' + entryBoxHeightOffset
-                                                                                    + '-1&' + entryBoxLeftOffset
-                                                                                    + '-1&' + entryBoxSize
-                                                                                    + '-1&' + entryUser + userName);
+        $.get(googleForm + entryImgNameSend + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
     }
 
 
@@ -51,13 +51,13 @@ function clickEvent(e) {
         };
         ary.push(obj);
 
-        googleForm = googleForm +  entryImgName + imgName
-                                                                + '&' + entryBoxHeightOffset + boxTop
-                                                                + '&' +  entryBoxLeftOffset + boxLeft
-                                                                + '&' + entryBoxSize + boxSize
-                                                                + '&' + entryUser + userName;
+        var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
+        var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
+        var entryBoxSizeSend = entryBoxSize + boxSize;
 
-        $.get(googleForm, '');
+        var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
+
+        $.get(googleFormSend);
 
     }
     //console.log(ary);
