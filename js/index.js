@@ -18,8 +18,8 @@ $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 */
 
 var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
-$("img").attr("src", imgURL.response);
-var imgName = imgURL.response.split('https://i.imgur.com/')[1];
+$("img").attr("src", imgURL.responseText);
+var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 
 
 var userName = document.getElementById("userName").value;
