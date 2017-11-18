@@ -32,7 +32,7 @@ function clickEvent(e) {
     entryBoxSize += boxSize;
     entryUser += 'USER'
 
-    googleForm = googleForm + entryImgName + entryBoxHeightOffset + entryBoxLeftOffset + entryBoxSize + entryUser;
+    googleForm = googleForm + entryImgName + '&' + entryBoxHeightOffset + '&' + entryBoxLeftOffset + '&' + entryBoxSize + '&' + entryUser;
     $.get(googleForm, '');
 
   }
