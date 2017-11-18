@@ -3,6 +3,8 @@ var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
 
+
+$.ajaxSettings.async = false;
 var JData = $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json');
 
 var len = JData.responseText.length;
@@ -18,7 +20,6 @@ var cookieUserName = document.cookie.split('&')[1];
 if(!userName && cookieUserName){
     document.getElementById("userName").value = cookieUserName;
 }
-
 
 function clickEvent(e) {
     ary = [];
