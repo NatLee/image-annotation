@@ -6,7 +6,7 @@ $("img").attr("src", "./img/" + num + ".png");
 
 var userName = document.getElementById("userName").value;
 if(!userName){
-  userName = document.cookie.split(';;;;;;;;')[1];
+  userName = document.cookie.split('&')[1];
   document.getElementById("userName").value = userName;
 }
 
@@ -45,7 +45,7 @@ function clickEvent(e) {
     }
     //console.log(ary);
     userName = document.getElementById("userName").value;
-    document.cookie = "userName=;;;;;;;;" + userName + ';;;;;;;;';
+    document.cookie = "userName=&" + userName + "&";
     //console.log(userName)
 
     alert('送出成功！請繼續努力！')
