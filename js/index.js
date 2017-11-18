@@ -3,9 +3,6 @@ var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
 
-
-var imgName ='';
-
 var JData = $.getJSON('https://rawgit.com/NatLee/test/master/yee.json');
 var len = JData.responseJSON.length;
 var num = Math.floor((Math.random() * len));
