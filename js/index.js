@@ -13,7 +13,6 @@ var imgName = JData.responseJSON[num];
 
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
-var userName = document.getElementById("userName").value;
 var cookieUserName = document.cookie.split('&')[1];
 
 if(!userName && cookieUserName){
@@ -30,7 +29,7 @@ function clickEvent(e) {
     var entryBoxSize = 'entry.676533522=';
     var entryUser = 'entry.1877828300=';
 
-    userName = document.getElementById("userName").value;
+    var userName = document.getElementById("userName").value;
 
     var entryImgNameSend = entryImgName + imgName;
     var entryUserSend = entryUser + userName;
@@ -57,6 +56,7 @@ function clickEvent(e) {
         var entryBoxSizeSend = entryBoxSize + boxSize;
 
         googleForm = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
+
         $.get(googleForm, '');
 
     }
