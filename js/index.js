@@ -8,7 +8,7 @@ $("img").attr("src", "./img/" + num + ".png");
 function clickEvent(e) {
   ary = [];
 
-  var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
+  var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse';
   var entryImgName = '?entry.758844231=';
   var entryBoxHeightOffset = '?entry.1881696409=';
   var entryBoxLeftOffset = '?entry.669378490=';
@@ -26,10 +26,11 @@ function clickEvent(e) {
       size : boxSize
     };
     ary.push(obj);
-
+    entryImgName += 'YEE';
     entryBoxHeightOffset += boxTop;
     entryBoxLeftOffset += boxLeft;
     entryBoxSize += boxSize;
+    entryUser += 'USER'
 
     googleForm = googleForm + entryImgName + entryBoxHeightOffset + entryBoxLeftOffset + entryBoxSize + entryUser;
     $.get(googleForm, '');
