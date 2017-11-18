@@ -7,11 +7,10 @@ var fixLeft = 8;
 $.ajaxSettings.async = false;
 var JData = $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json');
 
-var len = JData.responseText.length;
+var len = JData.responseJSON.length;
 var num = Math.floor((Math.random() * len));
-var imgName = JData.responseText[num];
+var imgName = JData.responseJSON[num];
 
-console.log(imgName);
 
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
