@@ -51,10 +51,11 @@ function clickEvent(e) {
         };
         ary.push(obj);
 
-        googleForm = googleForm + entryImgNameSend + '&' + entryBoxHeightOffset + boxTop
-                                                                                                                + '&' +  entryBoxLeftOffset + boxLeft
-                                                                                                                + '&' + entryBoxSize + boxSize
-                                                                                                                + '&' + entryUser + userName;
+        googleForm = googleForm +  entryImgName + imgName
+                                                                + '&' + entryBoxHeightOffset + boxTop
+                                                                + '&' +  entryBoxLeftOffset + boxLeft
+                                                                + '&' + entryBoxSize + boxSize
+                                                                + '&' + entryUser + userName;
 
         $.get(googleForm, '');
 
