@@ -3,21 +3,11 @@ var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
 
-var yee;
-$.ajax({
-  url: 'https://rawgit.com/NatLee/test/master/yee.json',
-  dataType: 'json',
-  data: yee,
-  async: false
-
-})
-console.log(yee);
-
 var JData = $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json');
 
-var len = JData.responseJSON.length;
+var len = JData.responseText.length;
 var num = Math.floor((Math.random() * len));
-var imgName = JData.responseJSON[num];
+var imgName = JData.responseText[num];
 
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
