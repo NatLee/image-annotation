@@ -20,7 +20,7 @@ function readTextFile(file)
     }
     rawFile.send(null);
 }
-var imgList = readTextFile('https://raw.githubusercontent.com/NatLee/AniNet/master/Listtest.txt?token=AJtRlBM5E9raCqM_sOK81_6ub7kOFiszks5aGb5swA%3D%3D');
+var imgList = readTextFile('https://raw.githubusercontent.com/NatLee/test/master/Listtest.txt');
 var lines = imgList.split('\n');
 var len = lines.length();
 //var num = Math.floor((Math.random() * 56) + 1);
