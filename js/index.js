@@ -17,9 +17,7 @@ function clickEvent(e) {
     ary.push(obj);
   }
   console.log(ary);
-
   $.get('https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?entry.758844231=' + String(ary) + '&entry.1877828300=' + 'GANBARUBY',"")
-
 
 }
 
