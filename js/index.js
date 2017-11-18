@@ -4,15 +4,17 @@ var fixLeft = 8;
 var num = Math.floor((Math.random() * 20) + 1);
 $("img").attr("src", "./img/" + num + ".png");
 
-var userName = document.getElementById("userName").value;
-if(!userName){
-  userName = document.cookie.split('&')[1];
-  document.getElementById("userName").value = userName;
-}
 
 function clickEvent(e) {
     ary = [];
     var boxes = $(".resizeDiv");
+
+    var userName = document.getElementById("userName").value;
+    if(!userName){
+      userName = document.cookie.split('&')[1];
+      document.getElementById("userName").value = userName;
+    }
+
     for (var i = 0; i < boxes.length; i++) {
         var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
         var entryImgName = 'entry.758844231=';
