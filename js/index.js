@@ -11,6 +11,8 @@ var len = JData.responseText.length;
 var num = Math.floor((Math.random() * len));
 var imgName = JData.responseText[num];
 
+console.log(imgName);
+
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
 
