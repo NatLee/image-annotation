@@ -4,6 +4,11 @@ var fixLeft = 8;
 var num = Math.floor((Math.random() * 20) + 1);
 $("img").attr("src", "./img/" + num + ".png");
 
+var userName = document.getElementById("userName").value;
+if(!userName){
+  userName = document.cookie.split('=')[1];
+  document.getElementById("userName").value = userName;
+}
 
 function clickEvent(e) {
     ary = [];
@@ -15,7 +20,7 @@ function clickEvent(e) {
         var entryBoxLeftOffset = 'entry.669378490=';
         var entryBoxSize = 'entry.676533522=';
         var entryUser = 'entry.1877828300=';
-        
+
         var userName = document.getElementById("userName").value;
 
         var boxTop = boxes[i]["offsetTop"] - fixTop;
@@ -38,8 +43,13 @@ function clickEvent(e) {
         $.get(googleForm, '');
 
     }
-    console.log(ary);
+    //console.log(ary);
+    userName = document.getElementById("userName").value;
+    document.cookie = "userName=" + userName;
+    //console.log(userName)
 
+    alert('送出成功！請繼續努力！')
+    location.reload();
 }
 
 $(function() {
