@@ -3,30 +3,19 @@ var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
 
-function readTextFile(file)
-{
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, false);
-    rawFile.onreadystatechange = function ()
-    {
-        if(rawFile.readyState === 4)
-        {
-            if(rawFile.status === 200 || rawFile.status == 0)
-            {
-                var allText = rawFile.responseText;
-                //alert(allText);
-            }
-        }
-    }
-    rawFile.send(null);
-}
-var imgList = readTextFile('https://raw.githubusercontent.com/NatLee/test/master/Listtest.txt');
-var lines = imgList.split('\n');
-var len = lines.length();
+
+var imgName ='';
+
+$.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json', function(JData){
+    var len = JData.length();
+    var num = Math.floor((Math.random() * len));
+    imgName = JData[num];
+});
+
 //var num = Math.floor((Math.random() * 56) + 1);
-var num = Math.floor((Math.random() * len));
+
 //$("img").attr("src", "./img/" + num + ".png");
-$("img").attr("src", "https://i.imgur.com/" + num + ".jpg");
+$("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 
 
 var userName = document.getElementById("userName").value;
@@ -61,7 +50,7 @@ function clickEvent(e) {
         };
         ary.push(obj);
 
-        entryImgName += num;
+        entryImgName += imgName;
         entryBoxHeightOffset += boxTop;
         entryBoxLeftOffset += boxLeft;
         entryBoxSize += boxSize;
