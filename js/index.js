@@ -7,7 +7,6 @@ $("img").attr("src", "./img/" + num + ".png");
 
 function clickEvent(e) {
     ary = [];
-
     var boxes = $(".resizeDiv");
     for (var i = 0; i < boxes.length; i++) {
         var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
@@ -16,6 +15,8 @@ function clickEvent(e) {
         var entryBoxLeftOffset = 'entry.669378490=';
         var entryBoxSize = 'entry.676533522=';
         var entryUser = 'entry.1877828300=';
+        
+        var userName = document.getElementById("userName").value;
 
         var boxTop = boxes[i]["offsetTop"] - fixTop;
         var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
@@ -26,11 +27,12 @@ function clickEvent(e) {
             size: boxSize
         };
         ary.push(obj);
-        entryImgName += 'YEE';
+
+        entryImgName += num;
         entryBoxHeightOffset += boxTop;
         entryBoxLeftOffset += boxLeft;
         entryBoxSize += boxSize;
-        entryUser += 'USER'
+        entryUser += userName
 
         googleForm = googleForm + entryImgName + '&' + entryBoxHeightOffset + '&' + entryBoxLeftOffset + '&' + entryBoxSize + '&' + entryUser;
         $.get(googleForm, '');
