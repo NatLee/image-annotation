@@ -5,6 +5,9 @@ var fixLeft = 8;
 
 
 $.ajaxSettings.async = false;
+
+/*
+// JSON WAY
 var JData = $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json');
 
 var len = JData.responseJSON.length;
@@ -12,6 +15,11 @@ var num = Math.floor((Math.random() * len));
 var imgName = JData.responseJSON[num];
 
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
+*/
+
+var imgURL = $.get('http://140.118.155.186/yee/yee.php');
+$("img").attr("src", imgURL.response);
+var imgName = imgURL.response.split('https://i.imgur.com/')[1];
 
 
 var userName = document.getElementById("userName").value;
@@ -32,7 +40,7 @@ function clickEvent(e) {
     var entryUser = 'entry.1877828300=';
 
     userName = document.getElementById("userName").value;
-    
+
     var entryUserSend = entryUser + userName;
 
     if(!boxes.length){ // 色即是空
