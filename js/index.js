@@ -7,7 +7,7 @@ var fixLeft = 8;
 var imgName ='';
 
 $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json', function(JData){
-    var len = JData.responseJSON.length();
+    var len = JData.responseJSON.length;
     var num = Math.floor((Math.random() * len));
     imgName = JData.responseJSON[num];
 });
