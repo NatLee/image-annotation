@@ -17,7 +17,7 @@ var imgName = JData.responseJSON[num];
 $("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
 */
 
-var imgURL = $.get('http://140.118.155.186/yee/yee.php');
+var imgURL = $.get('https://b3bb6390.ngrok.io/yee/yee.php');
 $("img").attr("src", imgURL.response);
 var imgName = imgURL.response.split('https://i.imgur.com/')[1];
 
