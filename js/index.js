@@ -1,11 +1,12 @@
 var ary = [];
-var fixTop = 105;
-var fixLeft = 8;
 
 $.ajaxSettings.async = false;
 
 var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
 $("img").attr("src", imgURL.responseText);
+var fixTop = $('img')[0].offsetTop;
+var fixLeft = $('img')[0].offsetLeft;
+
 var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 
 //USER NAME
