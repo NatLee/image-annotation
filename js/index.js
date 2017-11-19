@@ -12,7 +12,7 @@ var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 var userName = document.getElementById("userName").value;
 var cookieUserName;
 try{
-    cookieUserName = split('userName=')[1].split(';')[0];
+    cookieUserName = document.cookie.split('userName=')[1].split(';')[0];
     if(cookieUserName){
         userName = cookieUserName;
         document.getElementById("userName").value = userName;
