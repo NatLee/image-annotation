@@ -10,10 +10,12 @@ var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 
 //USER NAME
 var userName = document.getElementById("userName").value;
-var cookieUserName = split('userName=')[1].split(';')[0];
-if(cookieUserName){
-  userName = cookieUserName;
-  document.getElementById("userName").value = userName;
+var cookieUserName;
+try{
+    cookieUserName = split('userName=')[1].split(';')[0];
+}catch(err){
+    userName = cookieUserName;
+    document.getElementById("userName").value = userName;
 }
 
 //COUNT
