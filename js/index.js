@@ -50,7 +50,7 @@ function clickEvent(e) {
     var entryUserSend = entryUser + userName;
 
     if (!boxes.length) { // 色即是空
-        $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + userNameSend);
+        $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
     }
 
     for (var i = 0; i < boxes.length; i++) {
