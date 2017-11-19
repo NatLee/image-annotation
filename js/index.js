@@ -82,7 +82,8 @@ $(function() {
     $(".resizeDiv").draggable({
         stop: stopEvent
     }).resizable({
-        aspectRatio: 1 / 1
+        aspectRatio: 1 / 1,
+        resize: stopEvent
     });
 });
 
@@ -91,7 +92,8 @@ function addEvent(e) {
     $(".resizeDiv").draggable({
         stop: stopEvent
     }).resizable({
-        aspectRatio: 1 / 1
+        aspectRatio: 1 / 1,
+        resize: stopEvent
     });
     $(".resizeDiv").trigger("create");
 }
