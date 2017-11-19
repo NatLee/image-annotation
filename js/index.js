@@ -13,9 +13,12 @@ var userName = document.getElementById("userName").value;
 var cookieUserName;
 try{
     cookieUserName = split('userName=')[1].split(';')[0];
+    if(cookieUserName){
+        userName = cookieUserName;
+        document.getElementById("userName").value = userName;
+    }
 }catch(err){
-    userName = cookieUserName;
-    document.getElementById("userName").value = userName;
+    alert('請輸入你的名字！')
 }
 
 //COUNT
