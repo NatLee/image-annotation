@@ -1,32 +1,27 @@
-
 var ary = [];
 var fixTop = 105;
 var fixLeft = 8;
 
-
 $.ajaxSettings.async = false;
-
-/*
-// JSON WAY
-var JData = $.getJSON('https://raw.githubusercontent.com/NatLee/test/master/yee.json');
-
-var len = JData.responseJSON.length;
-var num = Math.floor((Math.random() * len));
-var imgName = JData.responseJSON[num];
-
-$("img").attr("src", "https://i.imgur.com/" + imgName + ".jpg");
-*/
 
 var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
 $("img").attr("src", imgURL.responseText);
 var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 
-
+//USER NAME
 var userName = document.getElementById("userName").value;
-var cookieUserName = document.cookie.split('&')[1];
-
-if(!userName && cookieUserName){
+var cookieUserName = document.cookie.split(';')[0].split('=')[1];
+if (!userName && cookieUserName) {
     document.getElementById("userName").value = cookieUserName;
+}
+
+//COUNT
+var count = document.cookie.split(';')[1].split('=')[1];
+if (!count || count == 'NaN') {
+    count = 0;
+    document.getElementById('count').innerHTML = count;
+} else if (count >= 0) {
+    document.getElementById('count').innerHTML = count;
 }
 
 function clickEvent(e) {
@@ -43,7 +38,7 @@ function clickEvent(e) {
 
     var entryUserSend = entryUser + userName;
 
-    if(!boxes.length){ // 色即是空
+    if (!boxes.length) { // 色即是空
         $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + userNameSend);
     }
 
@@ -62,16 +57,11 @@ function clickEvent(e) {
         var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
         var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
         var entryBoxSizeSend = entryBoxSize + boxSize;
-
         var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
-
         $.get(googleFormSend);
-
     }
-    //console.log(ary);
-    document.cookie = "userName=&" + userName + "&";
-    //console.log(userName)
-
+    document.cookie = "userName=" + userName;
+    document.cookie = "count=" + (parseInt(count) + 1);
     alert('送出成功！請繼續努力！')
     location.reload();
 }
@@ -83,7 +73,6 @@ $(function() {
         aspectRatio: 1 / 1
     });
 });
-
 
 function addEvent(e) {
     $("body").append('<div class="resizeDiv"></div>');
