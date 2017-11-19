@@ -36,6 +36,7 @@ try{
   }
 }
 
+
 function clickEvent(e) {
     ary = [];
     var boxes = $(".resizeDiv");
