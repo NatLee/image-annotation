@@ -10,18 +10,24 @@ var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
 
 //USER NAME
 var userName = document.getElementById("userName").value;
-var cookieUserName = document.cookie.split(';')[0].split('=')[1];
-if (!userName && cookieUserName) {
-    document.getElementById("userName").value = cookieUserName;
+var cookieUserName = split('userName=')[1].split(';')[0];
+if(cookieUserName){
+  userName = cookieUserName;
+  document.getElementById("userName").value = userName;
 }
 
 //COUNT
-var count = document.cookie.split(';')[1].split('=')[1];
-if (!count || count == 'NaN') {
+var count;
+try{
+  count = document.cookie.split('count=')[1].split(';')[0];
+  document.getElementById('count').innerHTML = count;
+}catch(err){
+  if(!count || count=='NaN'){
     count = 0;
     document.getElementById('count').innerHTML = count;
-} else if (count >= 0) {
+  }else if(count>=0){
     document.getElementById('count').innerHTML = count;
+  }
 }
 
 function clickEvent(e) {
