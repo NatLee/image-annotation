@@ -134,3 +134,7 @@ function deleteEvent(e) {
     $(".resizeDiv")[len - 1].outerHTML = '';
     ary.pop()
 }
+
+function rankEvent(e) { // button跳到排行榜頁面
+    window.location.href = 'https://ani-face.appspot.com/rank.php';
+}
