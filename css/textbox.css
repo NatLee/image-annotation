@@ -64,9 +64,9 @@ input:focus ~ .bar:before, input:focus ~ .bar:after {
 /* HIGHLIGHTER ================================== */
 .highlight {
   position:absolute;
-  height:60%;
+  height:30%;
   width:100px;
-  top:25%;
+  top:60%;
   left:0;
   pointer-events:none;
   opacity:0.5;
