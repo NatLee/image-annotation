@@ -2,6 +2,11 @@ var ary = [];
 
 $.ajaxSettings.async = false;
 
+expire_days = 365; 
+var d = new Date();
+d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
+var expires = "expires=" + d.toGMTString();
+
 var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
 $("img").attr("src", imgURL.responseText);
 var fixTop = $('img')[0].offsetTop;
@@ -73,8 +78,8 @@ function clickEvent(e) {
         var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
         $.get(googleFormSend);
     }
-    document.cookie = "userName=" + userName;
-    document.cookie = "count=" + (parseInt(count) + 1);
+    document.cookie = "userName=" + userName + ";" + expires;
+    document.cookie = "count=" + (parseInt(count) + 1) + ";" + expires;
     alert('送出成功！請繼續努力！')
     location.reload();
 }
