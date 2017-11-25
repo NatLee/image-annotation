@@ -1,4 +1,7 @@
 var ary = [];
+var imgOriH;
+var imgOriW;
+var imgDetectFlag = true;
 
 $.ajaxSettings.async = false;
 
@@ -54,6 +57,18 @@ function clickEvent(e) {
     }).then((willDelete) => {
         if (willDelete) {
             ary = [];
+
+            var imgH = $('img').height();
+            var imgW = $('img').width();
+            var HScale = 1;
+            var WScale = 1;
+            var scale = 1;
+            if(!imgDetectFlag){
+                HScale = imgH / imgOriH;
+                WScale = imgW / imgOriW;
+                scale = Math.sqrt(HScale * WScale);
+            }
+
             var boxes = $(".resizeDiv");
             var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
             var entryImgName = 'entry.758844231=';
@@ -67,9 +82,9 @@ function clickEvent(e) {
                 $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
             }
             for (var i = 0; i < boxes.length; i++) {
-                var boxTop = boxes[i]["offsetTop"] - fixTop;
-                var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
-                var boxSize = boxes[i]["offsetWidth"];
+                var boxTop = parseInt((boxes[i]["offsetTop"] - fixTop) / HScale);
+                var boxLeft = parseInt((boxes[i]["offsetLeft"] - fixLeft) / WScale);
+                var boxSize = parseInt(boxes[i]["offsetWidth"] / scale);
                 var obj = {
                     top: boxTop,
                     left: boxLeft,
@@ -96,48 +111,6 @@ function clickEvent(e) {
             document.getElementById("submit").disabled = false;
         }
     });
-
-/* //舊舊der Alert
-    ary = [];
-    var boxes = $(".resizeDiv");
-    var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
-    var entryImgName = 'entry.758844231=';
-    var entryBoxHeightOffset = 'entry.1881696409=';
-    var entryBoxLeftOffset = 'entry.669378490=';
-    var entryBoxSize = 'entry.676533522=';
-    var entryUser = 'entry.1877828300=';
-
-    userName = document.getElementById("userName").value;
-
-    var entryUserSend = entryUser + userName;
-
-    if (!boxes.length) { // 色即是空
-        $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
-    }
-
-    for (var i = 0; i < boxes.length; i++) {
-
-        var boxTop = boxes[i]["offsetTop"] - fixTop;
-        var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
-        var boxSize = boxes[i]["offsetWidth"];
-        var obj = {
-            top: boxTop,
-            left: boxLeft,
-            size: boxSize
-        };
-        ary.push(obj);
-        var entryImgNameSend = entryImgName + imgName;
-        var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
-        var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
-        var entryBoxSizeSend = entryBoxSize + boxSize;
-        var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
-        $.get(googleFormSend);
-    }
-    document.cookie = "userName=" + userName + ";" + expires;
-    document.cookie = "count=" + (parseInt(count) + 1) + ";" + expires;
-    alert('送出成功！請繼續努力！')
-    location.reload();
-*/
 }
 
 $(function() {
@@ -206,4 +179,31 @@ function detailsEvent(e) {
         text: "框頭，整顆頭！YEE！",
         icon: "info",
     });
+}
+
+function zoomInEvent(e) {
+    if(imgDetectFlag){
+        imgOriH = $("img")[0].height;
+        imgOriW = $("img")[0].width;
+        imgDetectFlag = false;
+    }
+    $("img")[0].height = $("img")[0].height * 1.1;
+}
+
+function zoomOutEvent(e) {
+    if(imgDetectFlag){
+        imgOriH = $("img")[0].height;
+        imgOriW = $("img")[0].width;
+        imgDetectFlag = false;
+    }
+    if($('img').height() > $(".resizeDiv")[0].offsetHeight && $('img').width() > $(".resizeDiv")[0].offsetWidth){
+        $("img")[0].height = $("img")[0].height * 0.9;
+    }else{
+        swal({
+            title: "有點疑問",
+            text: "縮這麼小看得到嗎？",
+            icon: "info",
+        });
+    }
+
 }
