@@ -2,7 +2,7 @@ var ary = [];
 
 $.ajaxSettings.async = false;
 
-expire_days = 365; 
+expire_days = 365;
 var d = new Date();
 d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
 var expires = "expires=" + d.toGMTString();
@@ -24,7 +24,8 @@ try{
         document.getElementById("userName").value = userName;
     }
 }catch(err){
-    alert('請輸入你的名字！')
+    //alert('請輸入你的名字！')
+    swal("請輸入你的名字！", "框框可以在左下方找到：）");
 }
 
 //COUNT
@@ -43,6 +44,60 @@ try{
 
 
 function clickEvent(e) {
+    document.getElementById("submit").disabled = true;
+    swal({
+        title: "你確定嗎?",
+        text: "一旦按下OK，此次結果將會送出。",
+        icon: "warning",
+        buttons: ["不要", true],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
+            ary = [];
+            var boxes = $(".resizeDiv");
+            var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
+            var entryImgName = 'entry.758844231=';
+            var entryBoxHeightOffset = 'entry.1881696409=';
+            var entryBoxLeftOffset = 'entry.669378490=';
+            var entryBoxSize = 'entry.676533522=';
+            var entryUser = 'entry.1877828300=';
+            userName = document.getElementById("userName").value;
+            var entryUserSend = entryUser + userName;
+            if (!boxes.length) { // 色即是空
+                $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
+            }
+            for (var i = 0; i < boxes.length; i++) {
+                var boxTop = boxes[i]["offsetTop"] - fixTop;
+                var boxLeft = boxes[i]["offsetLeft"] - fixLeft;
+                var boxSize = boxes[i]["offsetWidth"];
+                var obj = {
+                    top: boxTop,
+                    left: boxLeft,
+                    size: boxSize
+                };
+                ary.push(obj);
+                var entryImgNameSend = entryImgName + imgName;
+                var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
+                var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
+                var entryBoxSizeSend = entryBoxSize + boxSize;
+                var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
+                $.get(googleFormSend);
+            }
+            document.cookie = "userName=" + userName + ";" + expires;
+            document.cookie = "count=" + (parseInt(count) + 1) + ";" + expires;
+
+            swal("送出成功！請繼續努力！", {
+                icon: "success",
+            }).then((value) => {
+                location.reload();
+            });
+        } else {
+            swal("請再次確認位置。");
+            document.getElementById("submit").disabled = false;
+        }
+    });
+
+/* //舊舊der Alert
     ary = [];
     var boxes = $(".resizeDiv");
     var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
@@ -82,6 +137,7 @@ function clickEvent(e) {
     document.cookie = "count=" + (parseInt(count) + 1) + ";" + expires;
     alert('送出成功！請繼續努力！')
     location.reload();
+*/
 }
 
 $(function() {
@@ -142,4 +198,12 @@ function deleteEvent(e) {
 
 function rankEvent(e) { // button跳到排行榜頁面
     window.location.href = 'https://ani-face.appspot.com/rank.php';
+}
+
+function detailsEvent(e) {
+    swal({
+        title: "這是個說明",
+        text: "框頭，整顆頭！YEE！",
+        icon: "info",
+    });
 }

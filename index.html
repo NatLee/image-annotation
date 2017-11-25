@@ -14,6 +14,7 @@ ____    ____  _______  _______
 <title>AniFace</title>
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css" />
@@ -28,7 +29,7 @@ ____    ____  _______  _______
       height: 150px;
       padding: 0.5em;
       background-color: rgba(255, 75, 55, 0.5);
-      z-index: 99999;
+      z-index: 1;
       position: absolute;
       left: 300px;
       top: 10px;
@@ -43,10 +44,11 @@ ____    ____  _______  _______
 
  <div class=menu style="float: left; width: 300px">
      <h1 id="count" style="text-align: center; background-color: rgb(230, 170, 100); opacity: 0.5 ; height:50px">yee</h1>
-     <button class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="addEvent(this)">增加框框</button>
-     <button class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="deleteEvent(this)">刪除框框</button>
-     <button class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="rankEvent(this)">排行榜</button>
-     <button class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="clickEvent(this)">送出</button>
+     <button id="add" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="addEvent(this)">增加框框</button>
+     <button id="del" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="deleteEvent(this)">刪除框框</button>
+     <button id="rank" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="rankEvent(this)">排行榜</button>
+	<button id="details" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="detailsEvent(this)">說明</button>
+     <button id="submit" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="clickEvent(this)">送出</button>
      <!--<input type="text" id="userName" style="margin-left: 15%; border: 3px double #CCCCCC; " size="20" name="userName" placeholder="輸入你的名字"  />-->
 
      <div class="group" style="float: right">
@@ -62,6 +64,7 @@ ____    ____  _______  _______
     <div class="resizeDiv"></div>
     <img id="yee" style="position: absolute; z-index: -1">
  </div>
+
 
 </body>
 
