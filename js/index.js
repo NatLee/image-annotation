@@ -26,14 +26,13 @@ jQuery.ajax({
 }).done(function(data) {
 	console.log(data);
 	var r = Math.floor(Math.random() * data.data.length + 1);
-	console.log(r);
+	//console.log(r);
 	var id = data.data[r]['id'];
 	var link = data.data[r]['link'];
 	//console.log(id);
 	//console.log(link);
     imgURL = link;
 });
-
 
 //$("img").attr("src", imgURL.responseText);
 $("img").attr("src", imgURL);
