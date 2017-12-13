@@ -24,7 +24,7 @@ jQuery.ajax({
 	type: 'GET',
 	headers: headers
 }).done(function(data) {
-	console.log(data);
+	//console.log(data);
 	var r = Math.floor(Math.random() * data.data.length + 1);
 	//console.log(r);
 	var id = data.data[r]['id'];
