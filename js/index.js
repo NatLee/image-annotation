@@ -35,11 +35,13 @@ jQuery.ajax({
 });
 
 
-$("img").attr("src", imgURL.responseText);
+//$("img").attr("src", imgURL.responseText);
+$("img").attr("src", imgURL);
 var fixTop = $('img')[0].offsetTop;
 var fixLeft = $('img')[0].offsetLeft;
 
-var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
+//var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
+var imgName = imgURL.split('https://i.imgur.com/')[1];
 
 //USER NAME
 var userName = document.getElementById("userName").value;
