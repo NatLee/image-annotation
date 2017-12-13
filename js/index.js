@@ -10,7 +10,31 @@ var d = new Date();
 d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
 var expires = "expires=" + d.toGMTString();
 
-var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
+var url = "https://api.imgur.com/3/album/komU7/images";
+var headers = {
+	'Accept': '/',
+    'Content-Type': 'application/json',
+    'Authorization': 'Client-ID 0ab461a00db6f5f'
+};
+
+//var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
+var imgURL = '';
+jQuery.ajax({
+	url: url,
+	type: 'GET',
+	headers: headers
+}).done(function(data) {
+	console.log(data);
+	var r = Math.floor(Math.random() * data.data.length + 1);
+	console.log(r);
+	var id = data.data[r]['id'];
+	var link = data.data[r]['link'];
+	//console.log(id);
+	//console.log(link);
+    imgURL = link;
+});
+
+
 $("img").attr("src", imgURL.responseText);
 var fixTop = $('img')[0].offsetTop;
 var fixLeft = $('img')[0].offsetLeft;
@@ -170,7 +194,8 @@ function deleteEvent(e) {
 }
 
 function rankEvent(e) { // button跳到排行榜頁面
-    window.location.href = 'https://ani-face.appspot.com/rank.php';
+    //window.location.href = 'https://ani-face.appspot.com/rank.php';
+    window.location.href = 'rank.html';
 }
 
 function detailsEvent(e) {
