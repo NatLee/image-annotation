@@ -1,77 +1,50 @@
+<!DOCTYPE HTML>
+
 <html>
+	<head>
+		<title>AniFace</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="css/main.css" />
+		<noscript><link rel="stylesheet" href="css/noscript.css" /></noscript>
+		<!--[if lte IE 8]><link rel="stylesheet" href="css/ie8.css" /><![endif]-->
+	</head>
+	<body>
 
-<!--
-____    ____  _______  _______
-\   \  /   / |   ____||   ____|
- \   \/   /  |  |__   |  |__
-  \_    _/   |   __|  |   __|
-    |  |     |  |____ |  |____
-    |__|     |_______||_______|
--->
+		<!-- Wrapper-->
+			<div id="wrapper">
 
-<head>
-<meta charset="UTF-8">
-<title>AniFace</title>
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
+				<!-- Nav -->
+					<nav id="nav">
+						<a href="#me" class="icon fa-home active"><span>Home</span></a>
+					</nav>
 
-<link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" href="css/normalize.css" />
-<link rel="stylesheet" type="text/css" href="css/vicons-font.css" />
-<link rel="stylesheet" type="text/css" href="css/base.css" />
-<link rel="stylesheet" type="text/css" href="css/buttons.css" />
-<link rel="stylesheet" type="text/css" href="css/textbox.css" />
-  <style>
-    .resizeDiv {
-      width: 150px;
-      height: 150px;
-      padding: 0.5em;
-      background-color: rgba(255, 75, 55, 0.5);
-      z-index: 1;
-      position: absolute;
-      left: 300px;
-      top: 10px;
-    }
-  </style>
+				<!-- Main -->
+					<div id="main">
+						<!-- Me -->
+							<article id="me" class="panel">
+								<header>
+									<h1>Anime Face :)</h1>
+									<p>
+										Thank you for contributing!</br>
+										<input type='button' style='size:  100; font-size: x-large; margin-top: 5%;'  onclick="javascript:location.href='https://natlee.github.io/AniNet/rank.html'"  value='排行榜（Rank）'/>
+									</p>
+								</header>
+								<a href="#work" class="jumplink pic">
+									<img src="chika.jpg" alt="" />
+								</a>
+							</article>
+					</div>
+			</div>
 
-</head>
+		<!-- Scripts -->
+			<script src="js/jquery.min.js"></script>
+			<script src="js/skel.min.js"></script>
+			<script src="js/skel-viewport.min.js"></script>
+			<script src="js/util.js"></script>
+			<!--[if lte IE 8]><script src="js/ie/respond.min.js"></script><![endif]-->
+			<script src="js/main.js"></script>
 
-<body>
-
-<div class=top style="float: top; height: 10px"></div>
-
- <div class=menu style="float: left; width: 300px">
-     <h1 id="count" style="text-align: center; background-color: rgb(230, 170, 100); opacity: 0.5 ; height:50px">yee</h1>
-     <button id="add" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="addEvent(this)">增加框框</button>
-     <button id="del" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="deleteEvent(this)">刪除框框</button>
-     <button id="rank" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="rankEvent(this)">排行榜</button>
-	<button id="details" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="detailsEvent(this)">說明</button>
-     <button id="submit" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted" onclick="clickEvent(this)">送出</button>
-     <!--<input type="text" id="userName" style="margin-left: 15%; border: 3px double #CCCCCC; " size="20" name="userName" placeholder="輸入你的名字"  />-->
-
-     <div class="group" style="float: right">
-         <br><br>
-         <input type="text" id="userName" required >
-         <span class="highlight"></span>
-         <span class="bar"></span>
-         <label>輸入你的名字</label>
-    </div>
-    <div class="zoom" style="padding: 10%">
-        <button class="button button--sacnite button--round-l" onclick="zoomInEvent(this)">＋</button>
-        <button class="button button--sacnite button--round-l" onclick="zoomOutEvent(this)">－</button>
-    </div>
-</div>
-
-
-
-<div class=imageDiv style="border-right: 0px; border-left: 25px">
-    <div class="resizeDiv"></div>
-    <img class="img" style="position: absolute; z-index: -1">
- </div>
-
-</body>
-
-<script type="text/javascript" src="js/index.js"></script>
+	</body>
 </html>
