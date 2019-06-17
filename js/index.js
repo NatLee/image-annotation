@@ -10,39 +10,34 @@ var d = new Date();
 d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
 var expires = "expires=" + d.toGMTString();
 
-//var url = "https://api.imgur.com/3/album/komU7/images";
+
 var url = 'https://ani-net-get-image.herokuapp.com/';
 var headers = {
 	'Accept': '/',
     'Content-Type': 'application/json'
-    //'Authorization': 'Client-ID 0ab461a00db6f5f'
 };
 
-//var imgURL = $.get('https://ani-face.appspot.com/getImg.php');
 var imgURL = '';
 jQuery.ajax({
 	url: url,
 	type: 'GET',
 	headers: headers
 }).done(function(data) {
-	//console.log(data);
-	//var r = Math.floor(Math.random() * data.data.length + 1);
-	//console.log(r);
-	//var id = data.data[r]['id'];
-	//var link = data.data[r]['link'];
-	//console.log(id);
-	//console.log(link);
-    //imgURL = link;
     imgURL = data;
+    
 });
 
-//$("img").attr("src", imgURL.responseText);
+// I'm SOOOOOO LAZZZZZZZZZZZZZZZZY :(
+imgURL = imgURL.slice(6, imgURL.length)
+console.log(imgURL);
+//　～～～～～～～～～～～～～～
+
+
 $("img").attr("src", imgURL);
 var fixTop = $('img')[0].offsetTop;
 var fixLeft = $('img')[0].offsetLeft;
 
-//var imgName = imgURL.responseText.split('https://i.imgur.com/')[1];
-//var imgName = imgURL.split('https://i.imgur.com/')[1];
+
 var list = imgURL.split('/');
 var imgName = list[list.length-1];
 
@@ -56,7 +51,6 @@ try{
         document.getElementById("userName").value = userName;
     }
 }catch(err){
-    //alert('請輸入你的名字！')
     swal("請輸入你的名字！", "框框可以在左下方找到：）");
 }
 
