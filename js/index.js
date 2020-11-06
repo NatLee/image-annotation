@@ -11,7 +11,7 @@ d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
 var expires = "expires=" + d.toGMTString();
 
 
-var url = 'https://ani-net-get-image.herokuapp.com/';
+var url = 'https://nat-web-apis.herokuapp.com/get_random_safebooru_image_url';
 var headers = {
 	'Accept': '/',
     'Content-Type': 'application/json'
