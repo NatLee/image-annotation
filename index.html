@@ -28,32 +28,28 @@ ____    ____  _______  _______
 
 <body>
 
-<div class="top-bar"></div>
+<div class="container">
+    <div class="menu-container">
+        <h1 id="count" class="count-header">yee</h1>
+        <button id="add" class="button">增加框框</button>
+        <button id="del" class="button">刪除框框</button>
+        <button id="rank" class="button">排行榜</button>
+        <button id="details" class="button">說明</button>
+        <button id="submit" class="button">送出</button>
 
-<div class="menu-container">
-    <h1 id="count" class="count-header">yee</h1>
-    <button id="add" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted">增加框框</button>
-    <button id="del" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted">刪除框框</button>
-    <button id="rank" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted">排行榜</button>
-    <button id="details" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted">說明</button>
-    <button id="submit" class="button button--wayra button--border-medium button--text-upper button--size-s button--text-thick button--inverted">送出</button>
-
-    <div class="group-container">
-        <br><br>
-        <input type="text" id="userName" required>
-        <span class="highlight"></span>
-        <span class="bar"></span>
-        <label>輸入你的名字</label>
+        <div class="group-container">
+            <input type="text" id="userName" placeholder="輸入你的名字" required>
+        </div>
+        <div class="zoom-container">
+            <button id="zoom-in" class="button">＋</button>
+            <button id="zoom-out" class="button">－</button>
+        </div>
     </div>
-    <div class="zoom-container">
-        <button id="zoom-in" class="button button--sacnite button--round-l">＋</button>
-        <button id="zoom-out" class="button button--sacnite button--round-l">－</button>
-    </div>
-</div>
 
-<div class="image-container">
-    <div class="resize-div"></div>
-    <img class="main-image">
+    <div class="image-container">
+        <div class="resize-div"></div>
+        <img class="main-image">
+    </div>
 </div>
 
 </body>
