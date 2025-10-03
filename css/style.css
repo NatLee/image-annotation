@@ -1,0 +1,45 @@
+.resize-div {
+  width: 150px;
+  height: 150px;
+  padding: 0.5em;
+  background-color: rgba(255, 75, 55, 0.5);
+  z-index: 1;
+  position: absolute;
+  left: 300px;
+  top: 10px;
+}
+
+.top-bar {
+  float: top;
+  height: 10px;
+}
+
+.menu-container {
+  float: left;
+  width: 300px;
+}
+
+.count-header {
+  text-align: center;
+  background-color: rgb(230, 170, 100);
+  opacity: 0.5;
+  height: 50px;
+}
+
+.group-container {
+  float: right;
+}
+
+.zoom-container {
+  padding: 10%;
+}
+
+.image-container {
+  border-right: 0px;
+  border-left: 25px;
+}
+
+.main-image {
+  position: absolute;
+  z-index: -1;
+}
