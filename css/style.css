@@ -50,8 +50,13 @@
 
 .zoom-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 1em;
   margin-top: 1em;
+}
+
+.zoom-container .button {
+    padding: 0.5em 1em;
 }
 
 /* Image Styles */
