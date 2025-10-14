@@ -56,7 +56,9 @@
 }
 
 .zoom-container .button {
-    padding: 0.5em 1em;
+    width: 50px;
+    height: 50px;
+    padding: 0;
 }
 
 /* Image Styles */
