@@ -1,31 +1,11 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:200,300,400,500,600);
-@font-face {
-	font-weight: normal;
-	font-style: normal;
-	font-family: 'codropsicons';
-	src: url("../fonts/codropsicons/codropsicons.eot");
-	src: url("../fonts/codropsicons/codropsicons.eot?#iefix") format("embedded-opentype"), url("../fonts/codropsicons/codropsicons.woff") format("woff"), url("../fonts/codropsicons/codropsicons.ttf") format("truetype"), url("../fonts/codropsicons/codropsicons.svg#codropsicons") format("svg");
-}
-*,
-*:after,
-*:before {
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-}
-.cf:before,
-.cf:after {
-	content: '';
-	display: table;
-}
-.cf:after {
-	clear: both;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
 body {
-	background: #cfd8dc;
-	color: #37474f;
+	background: #212121;
+	color: #ffffff;
 	font-weight: 400;
 	font-size: 1em;
-	font-family: 'Raleway', Arial, sans-serif;
+	font-family: 'Inter', sans-serif;
 }
 .support {
 	font-weight: bold;

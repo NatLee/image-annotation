@@ -2,71 +2,32 @@ var ary = [];
 var imgOriH;
 var imgOriW;
 var imgDetectFlag = true;
+let imgURL;
+let imgName;
 
-$.ajaxSettings.async = false;
-
-expire_days = 365;
-var d = new Date();
-d.setTime(d.getTime() + (expire_days * 24 * 60 * 60 * 1000));
-var expires = "expires=" + d.toGMTString();
-
-
-var url = 'https://nat-web-apis.herokuapp.com/get_random_safebooru_image_url';
-var headers = {
-	'Accept': '/',
-    'Content-Type': 'application/json'
-};
-
-var imgURL = '';
-jQuery.ajax({
-	url: url,
-	type: 'GET',
-	headers: headers
-}).done(function(data) {
-    imgURL = data;
-    
-});
-
-// I'm SOOOOOO LAZZZZZZZZZZZZZZZZY :(
-imgURL = imgURL.slice(6, imgURL.length)
-console.log(imgURL);
-//　～～～～～～～～～～～～～～
-
-
-$("img").attr("src", imgURL);
+// Use the waifu.im API to fetch a random image
+fetch('https://api.waifu.im/search')
+  .then(response => response.json())
+  .then(data => {
+    imgURL = data.images[0].url;
+    $("img").attr("src", imgURL);
+    var list = imgURL.split('/');
+    imgName = list[list.length-1];
+  });
 var fixTop = $('img')[0].offsetTop;
 var fixLeft = $('img')[0].offsetLeft;
 
-
-var list = imgURL.split('/');
-var imgName = list[list.length-1];
-
 //USER NAME
-var userName = document.getElementById("userName").value;
-var cookieUserName;
-try{
-    cookieUserName = document.cookie.split('userName=')[1].split(';')[0];
-    if(cookieUserName){
-        userName = cookieUserName;
-        document.getElementById("userName").value = userName;
-    }
-}catch(err){
-    swal("請輸入你的名字！", "框框可以在左下方找到：）");
+var userName = localStorage.getItem('userName');
+if (userName) {
+  document.getElementById("userName").value = userName;
+} else {
+  swal("請輸入你的名字！", "框框可以在左下方找到：）");
 }
 
 //COUNT
-var count;
-try{
-  count = document.cookie.split('count=')[1].split(';')[0];
-  document.getElementById('count').innerHTML = count;
-}catch(err){
-  if(!count || count=='NaN'){
-    count = 0;
-    document.getElementById('count').innerHTML = count;
-  }else if(count>=0){
-    document.getElementById('count').innerHTML = count;
-  }
-}
+var count = localStorage.getItem('count') || 0;
+document.getElementById('count').innerHTML = count;
 
 
 function clickEvent(e) {
@@ -92,7 +53,7 @@ function clickEvent(e) {
                 scale = Math.sqrt(HScale * WScale);
             }
 
-            var boxes = $(".resizeDiv");
+            var boxes = $(".resize-div");
             var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
             var entryImgName = 'entry.758844231=';
             var entryBoxHeightOffset = 'entry.1881696409=';
@@ -121,8 +82,8 @@ function clickEvent(e) {
                 var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
                 $.get(googleFormSend);
             }
-            document.cookie = "userName=" + userName + ";" + expires;
-            document.cookie = "count=" + (parseInt(count) + 1) + ";" + expires;
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('count', parseInt(count) + 1);
 
             swal("送出成功！請繼續努力！", {
                 icon: "success",
@@ -137,7 +98,7 @@ function clickEvent(e) {
 }
 
 $(function() {
-    $(".resizeDiv").draggable({
+    $(".resize-div").draggable({
         stop: stopEvent
     }).resizable({
         aspectRatio: 1 / 1,
@@ -146,14 +107,14 @@ $(function() {
 });
 
 function addEvent(e) {
-    $("body").append('<div class="resizeDiv"></div>');
-    $(".resizeDiv").draggable({
+    $(".image-container").append('<div class="resize-div"></div>');
+    $(".resize-div").draggable({
         stop: stopEvent
     }).resizable({
         aspectRatio: 1 / 1,
         resize: stopEvent
     });
-    $(".resizeDiv").trigger("create");
+    $(".resize-div").trigger("create");
 }
 
 function stopEvent(e) {
@@ -184,11 +145,11 @@ function stopEvent(e) {
 }
 
 function deleteEvent(e) {
-    var len = $(".resizeDiv").length;
+    var len = $(".resize-div").length;
     if (len == 0) {
         return;
     }
-    $(".resizeDiv")[len - 1].outerHTML = '';
+    $(".resize-div")[len - 1].outerHTML = '';
     ary.pop()
 }
 
@@ -220,7 +181,7 @@ function zoomOutEvent(e) {
         imgOriW = $("img")[0].width;
         imgDetectFlag = false;
     }
-    if($('img').height() > $(".resizeDiv")[0].offsetHeight && $('img').width() > $(".resizeDiv")[0].offsetWidth){
+    if($('img').height() > $(".resize-div")[0].offsetHeight && $('img').width() > $(".resize-div")[0].offsetWidth){
         $("img")[0].height = $("img")[0].height * 0.9;
     }else{
         swal({
@@ -231,3 +192,13 @@ function zoomOutEvent(e) {
     }
 
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('submit').addEventListener('click', clickEvent);
+  document.getElementById('add').addEventListener('click', addEvent);
+  document.getElementById('del').addEventListener('click', deleteEvent);
+  document.getElementById('rank').addEventListener('click', rankEvent);
+  document.getElementById('details').addEventListener('click', detailsEvent);
+  document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
+  document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
+});
