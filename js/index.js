@@ -83,7 +83,12 @@ function clickEvent(e) {
                 $.get(googleFormSend);
             }
             localStorage.setItem('userName', userName);
-            localStorage.setItem('count', parseInt(count) + 1);
+            var newCount = parseInt(count) + 1;
+            localStorage.setItem('count', newCount);
+
+            var rankData = JSON.parse(localStorage.getItem('rankData')) || {};
+            rankData[userName] = newCount;
+            localStorage.setItem('rankData', JSON.stringify(rankData));
 
             swal("送出成功！請繼續努力！", {
                 icon: "success",
@@ -153,9 +158,36 @@ function deleteEvent(e) {
     ary.pop()
 }
 
-function rankEvent(e) { // button跳到排行榜頁面
-    //window.location.href = 'https://ani-face.appspot.com/rank.php';
-    window.location.href = 'rank.html';
+function rankEvent(e) {
+    var rankContainer = document.getElementById('rank-container');
+    var imageContainer = document.querySelector('.image-container');
+    if (rankContainer.style.display === 'none') {
+        updateRank();
+        rankContainer.style.display = 'block';
+        imageContainer.style.display = 'none';
+    } else {
+        rankContainer.style.display = 'none';
+        imageContainer.style.display = 'flex';
+    }
+}
+
+function updateRank() {
+    var rankData = JSON.parse(localStorage.getItem('rankData')) || {};
+    var sortable = [];
+    for (var user in rankData) {
+        sortable.push([user, rankData[user]]);
+    }
+
+    sortable.sort(function(a, b) {
+        return b[1] - a[1];
+    });
+
+    var rankBody = document.getElementById('rank-body');
+    rankBody.innerHTML = '';
+    for (var i = 0; i < sortable.length; i++) {
+        var row = '<tr><td>' + sortable[i][0] + '</td><td>' + sortable[i][1] + '</td></tr>';
+        rankBody.innerHTML += row;
+    }
 }
 
 function detailsEvent(e) {
