@@ -225,6 +225,13 @@ function zoomOutEvent(e) {
 
 }
 
+function backToGameEvent(e) {
+    var rankContainer = document.getElementById('rank-container');
+    var imageContainer = document.querySelector('.image-container');
+    rankContainer.style.display = 'none';
+    imageContainer.style.display = 'flex';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('submit').addEventListener('click', clickEvent);
   document.getElementById('add').addEventListener('click', addEvent);
@@ -233,4 +240,5 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('details').addEventListener('click', detailsEvent);
   document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
   document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
+  document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
