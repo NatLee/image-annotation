@@ -107,7 +107,7 @@ $(function() {
 });
 
 function addEvent(e) {
-    $("body").append('<div class="resize-div"></div>');
+    $(".image-container").append('<div class="resize-div"></div>');
     $(".resize-div").draggable({
         stop: stopEvent
     }).resizable({
