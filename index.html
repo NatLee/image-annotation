@@ -20,6 +20,7 @@ ____    ____  _______  _______
 <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" href="css/normalize.css" />
 <link rel="stylesheet" type="text/css" href="css/vicons-font.css" />
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="css/base.css" />
 <link rel="stylesheet" type="text/css" href="css/buttons.css" />
 <link rel="stylesheet" type="text/css" href="css/textbox.css" />
@@ -44,6 +45,25 @@ ____    ____  _______  _______
             <button id="zoom-in" class="button">＋</button>
             <button id="zoom-out" class="button">－</button>
         </div>
+
+    </div>
+
+    <div id="rank-container" style="display: none; width: 100%; padding: 2em;">
+        <h1>Rank</h1>
+        <div class='tbl-header'>
+            <table cellpadding='0' cellspacing='0' border='0'>
+                <thead>
+                    <tr><th>Name</th><th>Count</th></tr>
+                </thead>
+            </table>
+        </div>
+        <div class='tbl-content' style='height: 80%'>
+            <table cellpadding='0' cellspacing='0' border='0'>
+                <tbody id="rank-body">
+                </tbody>
+            </table>
+        </div>
+        <button id="back-to-game" class="button" style="margin-top: 1em;">Back</button>
     </div>
 
     <div class="image-container">
