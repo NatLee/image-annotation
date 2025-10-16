@@ -11,11 +11,15 @@ fetch('https://api.waifu.im/search')
   .then(data => {
     imgURL = data.images[0].url;
     $("img").attr("src", imgURL);
+    $("img").on('load', function() {
+      fixTop = this.offsetTop;
+      fixLeft = this.offsetLeft;
+    });
     var list = imgURL.split('/');
     imgName = list[list.length-1];
   });
-var fixTop = $('img')[0].offsetTop;
-var fixLeft = $('img')[0].offsetLeft;
+var fixTop = 0;
+var fixLeft = 0;
 
 //USER NAME
 var userName = localStorage.getItem('userName');
@@ -69,6 +73,9 @@ function clickEvent(e) {
                 var boxTop = parseInt((boxes[i]["offsetTop"] - fixTop) / HScale);
                 var boxLeft = parseInt((boxes[i]["offsetLeft"] - fixLeft) / WScale);
                 var boxSize = parseInt(boxes[i]["offsetWidth"] / scale);
+                console.log('Image Size: ' + imgW + 'x' + imgH);
+                console.log('Frame Size: ' + boxSize + 'x' + boxSize);
+                console.log('Frame Position: (' + boxLeft + ', ' + boxTop + ')');
                 var obj = {
                     top: boxTop,
                     left: boxLeft,
@@ -126,8 +133,8 @@ function stopEvent(e) {
     var top = this.offsetTop - fixTop;
     var left = this.offsetLeft - fixLeft;
     var boxHW = this.offsetWidth;
-    var imgH = $('img').height();
-    var imgW = $('img').width();
+    var imgH = $('.main-image').outerHeight();
+    var imgW = $('.main-image').outerWidth();
     //console.log(imgH,imgW)
     if (top < 0) {
         $(this).css({
@@ -241,4 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
   document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
   document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
+});
+
+window.addEventListener('resize', () => {
+    fixTop = $('.main-image')[0].offsetTop;
+    fixLeft = $('.main-image')[0].offsetLeft;
 });
