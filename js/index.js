@@ -167,14 +167,14 @@ function deleteEvent(e) {
 
 function rankEvent(e) {
     var rankContainer = document.getElementById('rank-container');
-    var imageContainer = document.querySelector('.image-container');
+    var anifaceContainer = document.getElementById('aniface');
     if (rankContainer.style.display === 'none') {
         updateRank();
         rankContainer.style.display = 'block';
-        imageContainer.style.display = 'none';
+        anifaceContainer.style.display = 'none';
     } else {
         rankContainer.style.display = 'none';
-        imageContainer.style.display = 'flex';
+        anifaceContainer.style.display = 'block';
     }
 }
 
@@ -234,9 +234,9 @@ function zoomOutEvent(e) {
 
 function backToGameEvent(e) {
     var rankContainer = document.getElementById('rank-container');
-    var imageContainer = document.querySelector('.image-container');
+    var anifaceContainer = document.getElementById('aniface');
     rankContainer.style.display = 'none';
-    imageContainer.style.display = 'flex';
+    anifaceContainer.style.display = 'block';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

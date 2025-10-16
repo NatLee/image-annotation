@@ -28,48 +28,53 @@ ____    ____  _______  _______
 
 <body>
 
-<div class="container">
-    <div class="menu-container">
-        <h1 id="count" class="count-header">yee</h1>
-        <button id="add" class="button">增加框框</button>
-        <button id="del" class="button">刪除框框</button>
-        <button id="rank" class="button">排行榜</button>
-        <button id="details" class="button">說明</button>
-        <button id="submit" class="button">送出</button>
+	<div id="wrapper">
+		<div id="main">
+			<div id="aniface" class="panel">
+				<div class="container">
+					<div class="menu-container">
+						<h1 id="count" class="count-header">yee</h1>
+						<button id="add" class="button">增加框框</button>
+						<button id="del" class="button">刪除框框</button>
+						<button id="rank" class="button">排行榜</button>
+						<button id="details" class="button">說明</button>
+						<button id="submit" class="button">送出</button>
 
-        <div class="group-container">
-            <input type="text" id="userName" placeholder="輸入你的名字" required>
-        </div>
-        <div class="zoom-container">
-            <button id="zoom-in" class="button">＋</button>
-            <button id="zoom-out" class="button">－</button>
-        </div>
+						<div class="group-container">
+							<input type="text" id="userName" placeholder="輸入你的名字" required>
+						</div>
+						<div class="zoom-container">
+							<button id="zoom-in" class="button">＋</button>
+							<button id="zoom-out" class="button">－</button>
+						</div>
 
-    </div>
+					</div>
+					<div class="image-container">
+						<div class="resize-div"></div>
+						<img class="main-image">
+					</div>
+				</div>
+			</div>
 
-    <div id="rank-container" style="display: none; width: 100%; padding: 2em;">
-        <h1>Rank</h1>
-        <div class='tbl-header'>
-            <table cellpadding='0' cellspacing='0' border='0'>
-                <thead>
-                    <tr><th>Name</th><th>Count</th></tr>
-                </thead>
-            </table>
-        </div>
-        <div class='tbl-content' style='height: 80%'>
-            <table cellpadding='0' cellspacing='0' border='0'>
-                <tbody id="rank-body">
-                </tbody>
-            </table>
-        </div>
-        <button id="back-to-game" class="button" style="margin-top: 1em;">Back</button>
-    </div>
-
-    <div class="image-container">
-        <div class="resize-div"></div>
-        <img class="main-image">
-    </div>
-</div>
+			<div id="rank-container" class="panel" style="display: none; width: 100%; padding: 2em;">
+				<h1>Rank</h1>
+				<div class='tbl-header'>
+					<table cellpadding='0' cellspacing='0' border='0'>
+						<thead>
+							<tr><th>Name</th><th>Count</th></tr>
+						</thead>
+					</table>
+				</div>
+				<div class='tbl-content' style='height: 80%'>
+					<table cellpadding='0' cellspacing='0' border='0'>
+						<tbody id="rank-body">
+						</tbody>
+					</table>
+				</div>
+				<button id="back-to-game" class="button" style="margin-top: 1em;">Back</button>
+			</div>
+		</div>
+	</div>
 
 </body>
 
