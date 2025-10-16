@@ -1061,7 +1061,6 @@ ol.default li {
   #wrapper {
     width: 45em;
     margin: 0 auto;
-    opacity: 0.00001;
   }
   #wrapper.tall {
     padding-bottom: 6em;
@@ -1449,5 +1448,6 @@ td {
   padding: 2px 5px;
   font-size: 12px;
 }
+
 
 /*# sourceMappingURL=style.css.map */
