@@ -1061,7 +1061,6 @@ ol.default li {
   #wrapper {
     width: 45em;
     margin: 0 auto;
-    opacity: 0.00001;
   }
   #wrapper.tall {
     padding-bottom: 6em;
@@ -1429,5 +1428,26 @@ td {
   color: #fff;
   border-bottom: solid 1px rgba(255, 255, 255, 0.1);
 }
+
+@media screen and (max-width: 736px) {
+  .container {
+    flex-direction: column;
+  }
+  .menu-container, .image-container {
+    width: 100%;
+    padding-right: 0;
+  }
+}
+
+.position-display {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2px 5px;
+  font-size: 12px;
+}
+
 
 /*# sourceMappingURL=style.css.map */
