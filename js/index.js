@@ -1,32 +1,31 @@
 var ary = [];
-var imgOriH;
-var imgOriW;
-var imgDetectFlag = true;
 let imgURL;
 let imgName;
+let zoomLevel = 1.0;
+var fixTop = 0;
+var fixLeft = 0;
 
 // Use the waifu.im API to fetch a random image
 fetch('https://api.waifu.im/search')
-  .then(response => response.json())
-  .then(data => {
-    imgURL = data.images[0].url;
-    $(".main-image").attr("src", imgURL).on('load', function() {
-      calculateViewport();
-      updateImageDimensions();
-      redrawBoxes();
+    .then(response => response.json())
+    .then(data => {
+        imgURL = data.images[0].url;
+        $(".main-image").attr("src", imgURL).on('load', function() {
+            calculateViewport();
+            updateImageDimensions();
+            redrawBoxes();
+            addEvent(null, true); // Add default box
+        });
+        var list = imgURL.split('/');
+        imgName = list[list.length - 1];
     });
-    var list = imgURL.split('/');
-    imgName = list[list.length-1];
-  });
-var fixTop = 0;
-var fixLeft = 0;
 
 //USER NAME
 var userName = localStorage.getItem('userName');
 if (userName) {
-  document.getElementById("userName").value = userName;
+    document.getElementById("userName").value = userName;
 } else {
-  swal("請輸入你的名字！", "框框可以在左下方找到：）");
+    swal("請輸入你的名字！", "框框可以在左下方找到：）");
 }
 
 //COUNT
@@ -44,20 +43,6 @@ function clickEvent(e) {
         dangerMode: true,
     }).then((willDelete) => {
         if (willDelete) {
-            ary = [];
-
-            var imgH = $('img').height();
-            var imgW = $('img').width();
-            var HScale = 1;
-            var WScale = 1;
-            var scale = 1;
-            if(!imgDetectFlag){
-                HScale = imgH / imgOriH;
-                WScale = imgW / imgOriW;
-                scale = Math.sqrt(HScale * WScale);
-            }
-
-            var boxes = $(".resize-div");
             var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
             var entryImgName = 'entry.758844231=';
             var entryBoxHeightOffset = 'entry.1881696409=';
@@ -66,28 +51,22 @@ function clickEvent(e) {
             var entryUser = 'entry.1877828300=';
             userName = document.getElementById("userName").value;
             var entryUserSend = entryUser + userName;
-            if (!boxes.length) { // 色即是空
+            if (!ary.length) { // No boxes
                 $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
-            }
-            for (var i = 0; i < boxes.length; i++) {
-                var boxTop = parseInt((boxes[i]["offsetTop"] - fixTop) / HScale);
-                var boxLeft = parseInt((boxes[i]["offsetLeft"] - fixLeft) / WScale);
-                var boxSize = parseInt(boxes[i]["offsetWidth"] / scale);
-                console.log('Image Size: ' + imgW + 'x' + imgH);
-                console.log('Frame Size: ' + boxSize + 'x' + boxSize);
-                console.log('Frame Position: (' + boxLeft + ', ' + boxTop + ')');
-                var obj = {
-                    top: boxTop,
-                    left: boxLeft,
-                    size: boxSize
-                };
-                ary.push(obj);
-                var entryImgNameSend = entryImgName + imgName;
-                var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
-                var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
-                var entryBoxSizeSend = entryBoxSize + boxSize;
-                var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
-                $.get(googleFormSend);
+            } else {
+                for (var i = 0; i < ary.length; i++) {
+                    var box = ary[i];
+                    var boxTop = parseInt(box.top);
+                    var boxLeft = parseInt(box.left);
+                    var boxSize = parseInt(box.size);
+
+                    var entryImgNameSend = entryImgName + imgName;
+                    var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
+                    var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
+                    var entryBoxSizeSend = entryBoxSize + boxSize;
+                    var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
+                    $.get(googleFormSend);
+                }
             }
             localStorage.setItem('userName', userName);
             var newCount = parseInt(count) + 1;
@@ -109,22 +88,101 @@ function clickEvent(e) {
     });
 }
 
-$(function() {
-    $(".resize-div").draggable({
-        stop: stopEvent
+function initBox(box) {
+    box.on('click', function(e) {
+        e.stopPropagation();
+        $('.resize-div').removeClass('selected');
+        $(this).addClass('selected');
+        updateBoxData($(this));
+    });
+
+    box.draggable({
+        containment: "parent",
+        drag: function(e, ui) {
+            var changeLeft = ui.position.left - ui.originalPosition.left;
+            var newLeft = ui.originalPosition.left + changeLeft / zoomLevel;
+            var changeTop = ui.position.top - ui.originalPosition.top;
+            var newTop = ui.originalPosition.top + changeTop / zoomLevel;
+            ui.position.left = newLeft;
+            ui.position.top = newTop;
+            updateBoxData($(this));
+        },
+        stop: function(e, ui) {
+            updateBoxData($(this));
+        }
     }).resizable({
         aspectRatio: 1 / 1,
-        resize: stopEvent
+        containment: "parent",
+        resize: function(e, ui) {
+            var changeWidth = ui.size.width - ui.originalSize.width;
+            var newWidth = ui.originalSize.width + changeWidth / zoomLevel;
+            var changeHeight = ui.size.height - ui.originalSize.height;
+            var newHeight = ui.originalSize.height + changeHeight / zoomLevel;
+            ui.size.width = newWidth;
+            ui.size.height = newHeight;
+            updateBoxData($(this));
+        },
+        stop: function(e, ui) {
+            updateBoxData($(this));
+        }
     });
+}
+
+$(function() {
+    window.initBox = initBox;
 });
 
-function addEvent(e) {
-    var originalBox = {
-        left: 50, // Default starting position
-        top: 50,
-        size: 100
+function updateBoxData(boxElement) {
+    var position = boxElement.position();
+    var displayCoords = {
+        x: position.left,
+        y: position.top,
+        width: boxElement.width(),
+        height: boxElement.height()
     };
-    ary.push(originalBox);
+    var originalCoords = displayToOriginal(displayCoords);
+
+    var index = boxElement.index('.resize-div');
+    if (index > -1) {
+        ary[index] = {
+            left: originalCoords.x,
+            top: originalCoords.y,
+            size: originalCoords.width
+        };
+    }
+
+    if (boxElement.hasClass('selected')) {
+        updateBoxInfo(originalCoords);
+    }
+}
+
+function updateBoxInfo(coords) {
+    var info = `X: ${parseInt(coords.x)}, Y: ${parseInt(coords.y)}, Size: ${parseInt(coords.width)}`;
+    $('#box-info').text(info);
+}
+
+function addEvent(e, isDefault = false) {
+    var img = $('.main-image');
+    var originalWidth = img[0].naturalWidth;
+    var originalHeight = img[0].naturalHeight;
+    var size = Math.min(originalWidth, originalHeight) * 0.25; // Default size: 25% of smaller dimension
+    var left = (originalWidth - size) / 2;
+    var top = (originalHeight - size) / 2;
+
+    var originalBox = {
+        left: left,
+        top: top,
+        size: size
+    };
+
+    if (!isDefault) {
+        // For new boxes added by user, place them slightly offset from the last one
+        if (ary.length > 0) {
+            var lastBox = ary[ary.length - 1];
+            originalBox.left = lastBox.left + 20;
+            originalBox.top = lastBox.top + 20;
+        }
+    }
 
     var displayBox = originalToDisplay({
         x: originalBox.left,
@@ -133,55 +191,35 @@ function addEvent(e) {
         height: originalBox.size
     });
 
-    var newBox = $('<div class="resize-div"><div class="position-display"></div></div>').css({
+    var newBox = $('<div class="resize-div"></div>').css({
         'left': displayBox.x + 'px',
         'top': displayBox.y + 'px',
         'width': displayBox.width + 'px',
         'height': displayBox.height + 'px'
     });
 
+    $('.resize-div').removeClass('selected');
+    newBox.addClass('selected');
+
     $(".image-container").append(newBox);
-    newBox.draggable({
-        stop: stopEvent
-    }).resizable({
-        aspectRatio: 1 / 1,
-        resize: stopEvent
-    });
-    newBox.trigger("create");
+    ary.push(originalBox); // Add placeholder
+    initBox(newBox);
+    updateBoxData(newBox); // Calculate and store correct initial data
 }
 
-function stopEvent(e, ui) {
-    var displayCoords = {
-        x: ui.position.left,
-        y: ui.position.top,
-        width: ui.size.width,
-        height: ui.size.height
-    };
-    var originalCoords = displayToOriginal(displayCoords);
-
-    var index = $(this).index('.resize-div');
-    ary[index] = {
-        left: originalCoords.x,
-        top: originalCoords.y,
-        size: originalCoords.width
-    };
-
-    // Update position display
-    var positionText = `
-      Top-Left: (${parseInt(originalCoords.x)}, ${parseInt(originalCoords.y)})<br>
-      Size: ${parseInt(originalCoords.width)}x${parseInt(originalCoords.height)}<br>
-      TS: v1.0
-    `;
-    $(this).find('.position-display').html(positionText);
-}
 
 function deleteEvent(e) {
-    var len = $(".resize-div").length;
-    if (len == 0) {
+    var boxes = $(".resize-div");
+    if (boxes.length === 0) {
         return;
     }
-    $(".resize-div")[len - 1].outerHTML = '';
-    ary.pop()
+
+    var lastBox = boxes.last();
+    if (lastBox.hasClass('selected')) {
+        $('#box-info').text('');
+    }
+    lastBox.remove();
+    ary.pop();
 }
 
 function rankEvent(e) {
@@ -217,32 +255,21 @@ function detailsEvent(e) {
     });
 }
 
+function applyZoom() {
+    $('.image-container').css({
+        'transform': `scale(${zoomLevel})`,
+        'transform-origin': 'top left'
+    });
+}
+
 function zoomInEvent(e) {
-    if(imgDetectFlag){
-        imgOriH = $(".main-image")[0].height;
-        imgOriW = $(".main-image")[0].width;
-        imgDetectFlag = false;
-    }
-    $(".main-image")[0].height = $(".main-image")[0].height * 1.1;
-    updateImageDimensions();
+    zoomLevel *= 1.1;
+    applyZoom();
 }
 
 function zoomOutEvent(e) {
-    if(imgDetectFlag){
-        imgOriH = $(".main-image")[0].height;
-        imgOriW = $(".main-image")[0].width;
-        imgDetectFlag = false;
-    }
-    if($('.main-image').height() > $(".resize-div").first().offsetHeight && $('.main-image').width() > $(".resize-div").first().offsetWidth){
-        $(".main-image")[0].height = $(".main-image")[0].height * 0.9;
-        updateImageDimensions();
-    }else{
-        swal({
-            title: "有點疑問",
-            text: "縮這麼小看得到嗎？",
-            icon: "info",
-        });
-    }
+    zoomLevel *= 0.9;
+    applyZoom();
 }
 
 function updateImageDimensions() {
@@ -257,15 +284,15 @@ function backToGameEvent(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('aniface').classList.add('active');
-  document.getElementById('submit').addEventListener('click', clickEvent);
-  document.getElementById('add').addEventListener('click', addEvent);
-  document.getElementById('del').addEventListener('click', deleteEvent);
-  document.getElementById('rank').addEventListener('click', rankEvent);
-  document.getElementById('details').addEventListener('click', detailsEvent);
-  document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
-  document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
-  document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
+    document.getElementById('aniface').classList.add('active');
+    document.getElementById('submit').addEventListener('click', clickEvent);
+    document.getElementById('add').addEventListener('click', addEvent);
+    document.getElementById('del').addEventListener('click', deleteEvent);
+    document.getElementById('rank').addEventListener('click', rankEvent);
+    document.getElementById('details').addEventListener('click', detailsEvent);
+    document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
+    document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
+    document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
 function calculateViewport() {
@@ -284,36 +311,56 @@ function calculateViewport() {
         displayWidth = displayHeight * imgAspectRatio;
     }
 
-    img.css({
+    var container = $('.image-container');
+    container.css({
         'width': displayWidth + 'px',
         'height': displayHeight + 'px'
     });
+    img.css({
+        'width': '100%',
+        'height': '100%'
+    });
 
-    fixTop = img[0].offsetTop;
-    fixLeft = img[0].offsetLeft;
+    var offset = container.offset();
+    fixTop = offset.top;
+    fixLeft = offset.left;
+
+    zoomLevel = 1.0;
+    applyZoom();
 }
 
 function originalToDisplay(originalCoords) {
-  var img = $('.main-image');
-  var scale = img.width() / img[0].naturalWidth;
-  return {
-    x: originalCoords.x * scale + fixLeft,
-    y: originalCoords.y * scale + fixTop,
-    width: originalCoords.width * scale,
-    height: originalCoords.height * scale
-  };
+    var img = $('.main-image');
+    if (!img[0] || !img[0].naturalWidth) return { x: 0, y: 0, width: 0, height: 0 };
+
+    var container = $('.image-container');
+    var scale = container.width() / img[0].naturalWidth;
+
+    return {
+        x: originalCoords.x * scale,
+        y: originalCoords.y * scale,
+        width: originalCoords.width * scale,
+        height: originalCoords.height * scale
+    };
 }
 
 function displayToOriginal(displayCoords) {
-  var img = $('.main-image');
-  var scale = img[0].naturalWidth / img.width();
-  return {
-    x: (displayCoords.x - fixLeft) * scale,
-    y: (displayCoords.y - fixTop) * scale,
-    width: displayCoords.width * scale,
-    height: displayCoords.height * scale
-  };
+    var img = $('.main-image');
+    if (!img[0] || !img[0].naturalWidth) return { x: 0, y: 0, width: 0, height: 0 };
+
+    var container = $('.image-container');
+    if (container.width() === 0) return { x: 0, y: 0, width: 0, height: 0 };
+
+    var scale = img[0].naturalWidth / container.width();
+
+    return {
+        x: displayCoords.x * scale,
+        y: displayCoords.y * scale,
+        width: displayCoords.width * scale,
+        height: displayCoords.height * scale
+    };
 }
+
 
 function redrawBoxes() {
     $(".resize-div").each(function(index) {
