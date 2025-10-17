@@ -262,4 +262,25 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('resize', () => {
     fixTop = $('.main-image')[0].offsetTop;
     fixLeft = $('.main-image')[0].offsetLeft;
+
+    // Reposition existing frames
+    $(".resize-div").each(function() {
+        var top = this.offsetTop - fixTop;
+        var left = this.offsetLeft - fixLeft;
+        var boxHW = this.offsetWidth;
+        var imgH = $('.main-image').outerHeight();
+        var imgW = $('.main-image').outerWidth();
+
+        if (top < 0) {
+            $(this).css({ "top": fixTop });
+        } else if (top + boxHW > imgH) {
+            $(this).css({ "top": imgH - boxHW + fixTop });
+        }
+
+        if (left < 0) {
+            $(this).css({ "left": fixLeft });
+        } else if (left + boxHW > imgW) {
+            $(this).css({ "left": imgW - boxHW + fixLeft });
+        }
+    });
 });
