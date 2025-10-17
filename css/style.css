@@ -17,7 +17,7 @@ body, html {
 #main {
   flex-grow: 1;
   position: relative;
-  overflow: hidden; /* Prevent content from overflowing */
+  height: calc(100% - 70px); /* Adjust 70px based on toolbar height */
 }
 
 .panel {
