@@ -1,14 +1,5 @@
+<!DOCTYPE html>
 <html>
-
-<!--
-____    ____  _______  _______
-\   \  /   / |   ____||   ____|
- \   \/   /  |  |__   |  |__
-  \_    _/   |   __|  |   __|
-    |  |     |  |____ |  |____
-    |__|     |_______||_______|
--->
-
 <head>
 <meta charset="UTF-8">
 <title>AniFace</title>
@@ -18,47 +9,20 @@ ____    ____  _______  _______
 <script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" href="css/normalize.css" />
-<link rel="stylesheet" type="text/css" href="css/vicons-font.css" />
-<link rel="stylesheet" type="text/css" href="css/base.css" />
-<link rel="stylesheet" type="text/css" href="css/buttons.css" />
-<link rel="stylesheet" type="text/css" href="css/textbox.css" />
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
-<body>
+<body class="is-loading">
 
 	<div id="wrapper">
 		<div id="main">
-			<div id="aniface" class="panel">
-				<div class="container">
-					<div class="menu-container">
-						<h1 id="count" class="count-header">yee</h1>
-						<button id="add" class="button">增加框框</button>
-						<button id="del" class="button">刪除框框</button>
-						<button id="rank" class="button">排行榜</button>
-						<button id="details" class="button">說明</button>
-						<button id="submit" class="button">送出</button>
-
-						<div class="group-container">
-							<input type="text" id="userName" placeholder="輸入你的名字" required>
-						</div>
-						<div class="zoom-container">
-							<button id="zoom-in" class="button">＋</button>
-							<button id="zoom-out" class="button">－</button>
-						</div>
-
-						<div id="image-dimensions" style="margin-top: 1em; text-align: center;"></div>
-
-					</div>
-					<div class="image-container">
-						<div class="resize-div"></div>
-						<img class="main-image">
-					</div>
+			<div id="aniface" class="panel active">
+				<div class="image-container">
+					<img class="main-image">
 				</div>
 			</div>
 
-			<div id="rank-container" class="panel" style="width: 100%; padding: 2em;">
+			<div id="rank-container" class="panel">
 				<h1>Rank</h1>
 				<div class='tbl-header'>
 					<table cellpadding='0' cellspacing='0' border='0'>
@@ -67,23 +31,41 @@ ____    ____  _______  _______
 						</thead>
 					</table>
 				</div>
-				<div class='tbl-content' style='height: 80%'>
+				<div class='tbl-content'>
 					<table cellpadding='0' cellspacing='0' border='0'>
 						<tbody id="rank-body">
 						</tbody>
 					</table>
 				</div>
-				<button id="back-to-game" class="button" style="margin-top: 1em;">Back</button>
+				<button id="back-to-game" class="button">Back</button>
 			</div>
+		</div>
+
+		<div id="toolbar">
+			<div class="left-controls">
+				<input type="text" id="userName" placeholder="Enter your name" required>
+				<div id="image-dimensions"></div>
+			</div>
+			<div class="center-controls">
+				<button id="add" class="button">Add Box</button>
+				<button id="del" class="button">Delete Box</button>
+				<button id="submit" class="button">Submit</button>
+			</div>
+			<div class="right-controls">
+				<button id="zoom-in" class="button">+</button>
+				<button id="zoom-out" class="button">-</button>
+				<button id="rank" class="button">Rank</button>
+				<button id="details" class="button">Details</button>
+			</div>
+			<h1 id="count" class="count-header">0</h1>
 		</div>
 	</div>
 
+	<script type="text/javascript" src="js/index.js"></script>
+	<script>
+		window.addEventListener('load', function() {
+			document.body.classList.remove('is-loading');
+		});
+	</script>
 </body>
-
-<script type="text/javascript" src="js/index.js"></script>
-<script>
-	window.addEventListener('load', function() {
-		document.body.classList.remove('is-loading');
-	});
-</script>
 </html>

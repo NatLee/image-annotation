@@ -10,10 +10,10 @@ fetch('https://api.waifu.im/search')
   .then(response => response.json())
   .then(data => {
     imgURL = data.images[0].url;
-    $("img").attr("src", imgURL);
-    $("img").on('load', function() {
+    $(".main-image").attr("src", imgURL).on('load', function() {
       fixTop = this.offsetTop;
       fixLeft = this.offsetLeft;
+      updateImageDimensions();
     });
     var list = imgURL.split('/');
     imgName = list[list.length-1];
@@ -119,7 +119,7 @@ $(function() {
 });
 
 function addEvent(e) {
-    $(".image-container").append('<div class="resize-div"></div>');
+    $(".image-container").append('<div class="resize-div"><div class="position-display"></div></div>');
     $(".resize-div").draggable({
         stop: stopEvent
     }).resizable({
@@ -129,31 +129,36 @@ function addEvent(e) {
     $(".resize-div").trigger("create");
 }
 
-function stopEvent(e) {
+function stopEvent(e, ui) {
     var top = this.offsetTop - fixTop;
     var left = this.offsetLeft - fixLeft;
     var boxHW = this.offsetWidth;
     var imgH = $('.main-image').outerHeight();
     var imgW = $('.main-image').outerWidth();
-    //console.log(imgH,imgW)
+
     if (top < 0) {
-        $(this).css({
-            "top": fixTop
-        });
+        top = 0;
+        $(this).css({ "top": fixTop });
     } else if (top + boxHW > imgH) {
-        $(this).css({
-            "top": imgH - boxHW + fixTop
-        });
+        top = imgH - boxHW;
+        $(this).css({ "top": imgH - boxHW + fixTop });
     }
+
     if (left < 0) {
-        $(this).css({
-            "left": fixLeft
-        });
+        left = 0;
+        $(this).css({ "left": fixLeft });
     } else if (left + boxHW > imgW) {
-        $(this).css({
-            "left": imgW - boxHW + fixLeft
-        });
+        left = imgW - boxHW;
+        $(this).css({ "left": imgW - boxHW + fixLeft });
     }
+
+    // Update position display
+    var positionText = `
+      Top-Left: (${parseInt(left)}, ${parseInt(top)})<br>
+      Size: ${boxHW}x${boxHW}<br>
+      TS: v1.0
+    `;
+    $(this).find('.position-display').html(positionText);
 }
 
 function deleteEvent(e) {
@@ -200,21 +205,23 @@ function detailsEvent(e) {
 
 function zoomInEvent(e) {
     if(imgDetectFlag){
-        imgOriH = $("img")[0].height;
-        imgOriW = $("img")[0].width;
+        imgOriH = $(".main-image")[0].height;
+        imgOriW = $(".main-image")[0].width;
         imgDetectFlag = false;
     }
-    $("img")[0].height = $("img")[0].height * 1.1;
+    $(".main-image")[0].height = $(".main-image")[0].height * 1.1;
+    updateImageDimensions();
 }
 
 function zoomOutEvent(e) {
     if(imgDetectFlag){
-        imgOriH = $("img")[0].height;
-        imgOriW = $("img")[0].width;
+        imgOriH = $(".main-image")[0].height;
+        imgOriW = $(".main-image")[0].width;
         imgDetectFlag = false;
     }
-    if($('img').height() > $(".resize-div")[0].offsetHeight && $('img').width() > $(".resize-div")[0].offsetWidth){
-        $("img")[0].height = $("img")[0].height * 0.9;
+    if($('.main-image').height() > $(".resize-div").first().offsetHeight && $('.main-image').width() > $(".resize-div").first().offsetWidth){
+        $(".main-image")[0].height = $(".main-image")[0].height * 0.9;
+        updateImageDimensions();
     }else{
         swal({
             title: "有點疑問",
@@ -222,7 +229,12 @@ function zoomOutEvent(e) {
             icon: "info",
         });
     }
+}
 
+function updateImageDimensions() {
+    var imgW = $('.main-image').outerWidth();
+    var imgH = $('.main-image').outerHeight();
+    $('#image-dimensions').text(`Image: ${imgW} x ${imgH}`);
 }
 
 function backToGameEvent(e) {
