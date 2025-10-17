@@ -14,7 +14,6 @@ fetch('https://api.waifu.im/search')
     $("img").on('load', function() {
       fixTop = this.offsetTop;
       fixLeft = this.offsetLeft;
-      updateImageDimensions();
     });
     var list = imgURL.split('/');
     imgName = list[list.length-1];
@@ -120,7 +119,7 @@ $(function() {
 });
 
 function addEvent(e) {
-    $(".image-container").append('<div class="resize-div"><div class="position-display"></div></div>');
+    $(".image-container").append('<div class="resize-div"></div>');
     $(".resize-div").draggable({
         stop: stopEvent
     }).resizable({
@@ -130,32 +129,31 @@ function addEvent(e) {
     $(".resize-div").trigger("create");
 }
 
-function stopEvent(e, ui) {
+function stopEvent(e) {
     var top = this.offsetTop - fixTop;
     var left = this.offsetLeft - fixLeft;
     var boxHW = this.offsetWidth;
     var imgH = $('.main-image').outerHeight();
     var imgW = $('.main-image').outerWidth();
-
+    //console.log(imgH,imgW)
     if (top < 0) {
-        top = 0;
-        $(this).css({ "top": fixTop });
+        $(this).css({
+            "top": fixTop
+        });
     } else if (top + boxHW > imgH) {
-        top = imgH - boxHW;
-        $(this).css({ "top": imgH - boxHW + fixTop });
+        $(this).css({
+            "top": imgH - boxHW + fixTop
+        });
     }
-
     if (left < 0) {
-        left = 0;
-        $(this).css({ "left": fixLeft });
+        $(this).css({
+            "left": fixLeft
+        });
     } else if (left + boxHW > imgW) {
-        left = imgW - boxHW;
-        $(this).css({ "left": imgW - boxHW + fixLeft });
+        $(this).css({
+            "left": imgW - boxHW + fixLeft
+        });
     }
-
-    // Update position display
-    var positionText = `(${parseInt(left)}, ${parseInt(top)})`;
-    $(this).find('.position-display').text(positionText);
 }
 
 function deleteEvent(e) {
@@ -168,16 +166,9 @@ function deleteEvent(e) {
 }
 
 function rankEvent(e) {
-    var rankContainer = document.getElementById('rank-container');
-    var anifaceContainer = document.getElementById('aniface');
-    if (rankContainer.style.display === 'none') {
-        updateRank();
-        rankContainer.style.display = 'block';
-        anifaceContainer.style.display = 'none';
-    } else {
-        rankContainer.style.display = 'none';
-        anifaceContainer.style.display = 'block';
-    }
+    updateRank();
+    document.getElementById('aniface').classList.remove('active');
+    document.getElementById('rank-container').classList.add('active');
 }
 
 function updateRank() {
@@ -214,7 +205,6 @@ function zoomInEvent(e) {
         imgDetectFlag = false;
     }
     $("img")[0].height = $("img")[0].height * 1.1;
-    updateImageDimensions();
 }
 
 function zoomOutEvent(e) {
@@ -225,7 +215,6 @@ function zoomOutEvent(e) {
     }
     if($('img').height() > $(".resize-div")[0].offsetHeight && $('img').width() > $(".resize-div")[0].offsetWidth){
         $("img")[0].height = $("img")[0].height * 0.9;
-        updateImageDimensions();
     }else{
         swal({
             title: "有點疑問",
@@ -233,22 +222,16 @@ function zoomOutEvent(e) {
             icon: "info",
         });
     }
-}
 
-function updateImageDimensions() {
-    var imgW = $('.main-image').outerWidth();
-    var imgH = $('.main-image').outerHeight();
-    $('#image-dimensions').text(`Image: ${imgW} x ${imgH}`);
 }
 
 function backToGameEvent(e) {
-    var rankContainer = document.getElementById('rank-container');
-    var anifaceContainer = document.getElementById('aniface');
-    rankContainer.style.display = 'none';
-    anifaceContainer.style.display = 'block';
+    document.getElementById('rank-container').classList.remove('active');
+    document.getElementById('aniface').classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('aniface').classList.add('active');
   document.getElementById('submit').addEventListener('click', clickEvent);
   document.getElementById('add').addEventListener('click', addEvent);
   document.getElementById('del').addEventListener('click', deleteEvent);
