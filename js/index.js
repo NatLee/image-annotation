@@ -10,10 +10,10 @@ fetch('https://api.waifu.im/search')
   .then(response => response.json())
   .then(data => {
     imgURL = data.images[0].url;
-    $("img").attr("src", imgURL);
-    $("img").on('load', function() {
-      fixTop = this.offsetTop;
-      fixLeft = this.offsetLeft;
+    $(".main-image").attr("src", imgURL).on('load', function() {
+      calculateViewport();
+      updateImageDimensions();
+      redrawBoxes();
     });
     var list = imgURL.split('/');
     imgName = list[list.length-1];
@@ -119,41 +119,60 @@ $(function() {
 });
 
 function addEvent(e) {
-    $(".image-container").append('<div class="resize-div"></div>');
-    $(".resize-div").draggable({
+    var originalBox = {
+        left: 50, // Default starting position
+        top: 50,
+        size: 100
+    };
+    ary.push(originalBox);
+
+    var displayBox = originalToDisplay({
+        x: originalBox.left,
+        y: originalBox.top,
+        width: originalBox.size,
+        height: originalBox.size
+    });
+
+    var newBox = $('<div class="resize-div"><div class="position-display"></div></div>').css({
+        'left': displayBox.x + 'px',
+        'top': displayBox.y + 'px',
+        'width': displayBox.width + 'px',
+        'height': displayBox.height + 'px'
+    });
+
+    $(".image-container").append(newBox);
+    newBox.draggable({
         stop: stopEvent
     }).resizable({
         aspectRatio: 1 / 1,
         resize: stopEvent
     });
-    $(".resize-div").trigger("create");
+    newBox.trigger("create");
 }
 
-function stopEvent(e) {
-    var top = this.offsetTop - fixTop;
-    var left = this.offsetLeft - fixLeft;
-    var boxHW = this.offsetWidth;
-    var imgH = $('.main-image').outerHeight();
-    var imgW = $('.main-image').outerWidth();
-    //console.log(imgH,imgW)
-    if (top < 0) {
-        $(this).css({
-            "top": fixTop
-        });
-    } else if (top + boxHW > imgH) {
-        $(this).css({
-            "top": imgH - boxHW + fixTop
-        });
-    }
-    if (left < 0) {
-        $(this).css({
-            "left": fixLeft
-        });
-    } else if (left + boxHW > imgW) {
-        $(this).css({
-            "left": imgW - boxHW + fixLeft
-        });
-    }
+function stopEvent(e, ui) {
+    var displayCoords = {
+        x: ui.position.left,
+        y: ui.position.top,
+        width: ui.size.width,
+        height: ui.size.height
+    };
+    var originalCoords = displayToOriginal(displayCoords);
+
+    var index = $(this).index('.resize-div');
+    ary[index] = {
+        left: originalCoords.x,
+        top: originalCoords.y,
+        size: originalCoords.width
+    };
+
+    // Update position display
+    var positionText = `
+      Top-Left: (${parseInt(originalCoords.x)}, ${parseInt(originalCoords.y)})<br>
+      Size: ${parseInt(originalCoords.width)}x${parseInt(originalCoords.height)}<br>
+      TS: v1.0
+    `;
+    $(this).find('.position-display').html(positionText);
 }
 
 function deleteEvent(e) {
@@ -166,16 +185,9 @@ function deleteEvent(e) {
 }
 
 function rankEvent(e) {
-    var rankContainer = document.getElementById('rank-container');
-    var imageContainer = document.querySelector('.image-container');
-    if (rankContainer.style.display === 'none') {
-        updateRank();
-        rankContainer.style.display = 'block';
-        imageContainer.style.display = 'none';
-    } else {
-        rankContainer.style.display = 'none';
-        imageContainer.style.display = 'flex';
-    }
+    updateRank();
+    document.getElementById('aniface').classList.remove('active');
+    document.getElementById('rank-container').classList.add('active');
 }
 
 function updateRank() {
@@ -207,21 +219,23 @@ function detailsEvent(e) {
 
 function zoomInEvent(e) {
     if(imgDetectFlag){
-        imgOriH = $("img")[0].height;
-        imgOriW = $("img")[0].width;
+        imgOriH = $(".main-image")[0].height;
+        imgOriW = $(".main-image")[0].width;
         imgDetectFlag = false;
     }
-    $("img")[0].height = $("img")[0].height * 1.1;
+    $(".main-image")[0].height = $(".main-image")[0].height * 1.1;
+    updateImageDimensions();
 }
 
 function zoomOutEvent(e) {
     if(imgDetectFlag){
-        imgOriH = $("img")[0].height;
-        imgOriW = $("img")[0].width;
+        imgOriH = $(".main-image")[0].height;
+        imgOriW = $(".main-image")[0].width;
         imgDetectFlag = false;
     }
-    if($('img').height() > $(".resize-div")[0].offsetHeight && $('img').width() > $(".resize-div")[0].offsetWidth){
-        $("img")[0].height = $("img")[0].height * 0.9;
+    if($('.main-image').height() > $(".resize-div").first().offsetHeight && $('.main-image').width() > $(".resize-div").first().offsetWidth){
+        $(".main-image")[0].height = $(".main-image")[0].height * 0.9;
+        updateImageDimensions();
     }else{
         swal({
             title: "有點疑問",
@@ -229,17 +243,21 @@ function zoomOutEvent(e) {
             icon: "info",
         });
     }
+}
 
+function updateImageDimensions() {
+    var imgW = $('.main-image').outerWidth();
+    var imgH = $('.main-image').outerHeight();
+    $('#image-dimensions').text(`Image: ${imgW} x ${imgH}`);
 }
 
 function backToGameEvent(e) {
-    var rankContainer = document.getElementById('rank-container');
-    var imageContainer = document.querySelector('.image-container');
-    rankContainer.style.display = 'none';
-    imageContainer.style.display = 'flex';
+    document.getElementById('rank-container').classList.remove('active');
+    document.getElementById('aniface').classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('aniface').classList.add('active');
   document.getElementById('submit').addEventListener('click', clickEvent);
   document.getElementById('add').addEventListener('click', addEvent);
   document.getElementById('del').addEventListener('click', deleteEvent);
@@ -250,7 +268,74 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
+function calculateViewport() {
+    var toolbarHeight = document.getElementById('toolbar').offsetHeight;
+    var availableHeight = window.innerHeight - toolbarHeight;
+    var availableWidth = window.innerWidth;
+
+    var img = $('.main-image');
+    var imgAspectRatio = img[0].naturalWidth / img[0].naturalHeight;
+
+    var displayWidth = availableWidth;
+    var displayHeight = displayWidth / imgAspectRatio;
+
+    if (displayHeight > availableHeight) {
+        displayHeight = availableHeight;
+        displayWidth = displayHeight * imgAspectRatio;
+    }
+
+    img.css({
+        'width': displayWidth + 'px',
+        'height': displayHeight + 'px'
+    });
+
+    fixTop = img[0].offsetTop;
+    fixLeft = img[0].offsetLeft;
+}
+
+function originalToDisplay(originalCoords) {
+  var img = $('.main-image');
+  var scale = img.width() / img[0].naturalWidth;
+  return {
+    x: originalCoords.x * scale + fixLeft,
+    y: originalCoords.y * scale + fixTop,
+    width: originalCoords.width * scale,
+    height: originalCoords.height * scale
+  };
+}
+
+function displayToOriginal(displayCoords) {
+  var img = $('.main-image');
+  var scale = img[0].naturalWidth / img.width();
+  return {
+    x: (displayCoords.x - fixLeft) * scale,
+    y: (displayCoords.y - fixTop) * scale,
+    width: displayCoords.width * scale,
+    height: displayCoords.height * scale
+  };
+}
+
+function redrawBoxes() {
+    $(".resize-div").each(function(index) {
+        var originalBox = ary[index];
+        if (originalBox) {
+            var displayBox = originalToDisplay({
+                x: originalBox.left,
+                y: originalBox.top,
+                width: originalBox.size,
+                height: originalBox.size
+            });
+            $(this).css({
+                'left': displayBox.x + 'px',
+                'top': displayBox.y + 'px',
+                'width': displayBox.width + 'px',
+                'height': displayBox.height + 'px'
+            });
+        }
+    });
+}
+
 window.addEventListener('resize', () => {
-    fixTop = $('.main-image')[0].offsetTop;
-    fixLeft = $('.main-image')[0].offsetLeft;
+    calculateViewport();
+    redrawBoxes();
 });
