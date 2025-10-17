@@ -17,6 +17,7 @@ body, html {
 #main {
   flex-grow: 1;
   position: relative;
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
 .panel {
@@ -36,6 +37,7 @@ body, html {
   height: 100%;
   padding: 1em;
   box-sizing: border-box;
+  min-height: 0; /* Flexbox fix to prevent overflow */
 }
 
 .main-image {
