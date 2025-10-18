@@ -1,7 +1,6 @@
 var ary = [];
 let imgURL;
 let imgName;
-let zoomLevel = 1.0;
 var fixTop = 0;
 var fixLeft = 0;
 
@@ -99,12 +98,6 @@ function initBox(box) {
     box.draggable({
         containment: "parent",
         drag: function(e, ui) {
-            var changeLeft = ui.position.left - ui.originalPosition.left;
-            var newLeft = ui.originalPosition.left + changeLeft / zoomLevel;
-            var changeTop = ui.position.top - ui.originalPosition.top;
-            var newTop = ui.originalPosition.top + changeTop / zoomLevel;
-            ui.position.left = newLeft;
-            ui.position.top = newTop;
             updateBoxData($(this));
         },
         stop: function(e, ui) {
@@ -114,12 +107,6 @@ function initBox(box) {
         aspectRatio: 1 / 1,
         containment: "parent",
         resize: function(e, ui) {
-            var changeWidth = ui.size.width - ui.originalSize.width;
-            var newWidth = ui.originalSize.width + changeWidth / zoomLevel;
-            var changeHeight = ui.size.height - ui.originalSize.height;
-            var newHeight = ui.originalSize.height + changeHeight / zoomLevel;
-            ui.size.width = newWidth;
-            ui.size.height = newHeight;
             updateBoxData($(this));
         },
         stop: function(e, ui) {
@@ -151,14 +138,13 @@ function updateBoxData(boxElement) {
         };
     }
 
-    if (boxElement.hasClass('selected')) {
-        updateBoxInfo(originalCoords);
-    }
+    // Update the info display for this specific box
+    updateBoxInfo(boxElement, originalCoords);
 }
 
-function updateBoxInfo(coords) {
-    var info = `X: ${parseInt(coords.x)}, Y: ${parseInt(coords.y)}, Size: ${parseInt(coords.width)}`;
-    $('#box-info').text(info);
+function updateBoxInfo(boxElement, coords) {
+    var infoText = `(${parseInt(coords.x)}, ${parseInt(coords.y)}) - ${parseInt(coords.width)}×${parseInt(coords.height)}`;
+    boxElement.find('.box-info-display').text(infoText);
 }
 
 function addEvent(e, isDefault = false) {
@@ -198,6 +184,9 @@ function addEvent(e, isDefault = false) {
         'height': displayBox.height + 'px'
     });
 
+    // Add the info display to the box
+    newBox.append('<div class="box-info-display"></div>');
+
     $('.resize-div').removeClass('selected');
     newBox.addClass('selected');
 
@@ -215,9 +204,6 @@ function deleteEvent(e) {
     }
 
     var lastBox = boxes.last();
-    if (lastBox.hasClass('selected')) {
-        $('#box-info').text('');
-    }
     lastBox.remove();
     ary.pop();
 }
@@ -255,23 +241,6 @@ function detailsEvent(e) {
     });
 }
 
-function applyZoom() {
-    $('.image-container').css({
-        'transform': `scale(${zoomLevel})`,
-        'transform-origin': 'top left'
-    });
-}
-
-function zoomInEvent(e) {
-    zoomLevel *= 1.1;
-    applyZoom();
-}
-
-function zoomOutEvent(e) {
-    zoomLevel *= 0.9;
-    applyZoom();
-}
-
 function updateImageDimensions() {
     var imgW = $('.main-image').outerWidth();
     var imgH = $('.main-image').outerHeight();
@@ -290,8 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('del').addEventListener('click', deleteEvent);
     document.getElementById('rank').addEventListener('click', rankEvent);
     document.getElementById('details').addEventListener('click', detailsEvent);
-    document.getElementById('zoom-in').addEventListener('click', zoomInEvent);
-    document.getElementById('zoom-out').addEventListener('click', zoomOutEvent);
     document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
@@ -324,9 +291,6 @@ function calculateViewport() {
     var offset = container.offset();
     fixTop = offset.top;
     fixLeft = offset.left;
-
-    zoomLevel = 1.0;
-    applyZoom();
 }
 
 function originalToDisplay(originalCoords) {
