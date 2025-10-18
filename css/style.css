@@ -56,17 +56,17 @@ body, html {
   height: 100px;
 }
 
-.position-display {
+.box-info-display {
   position: absolute;
-  bottom: -60px;
+  bottom: -25px; /* Position it just below the box */
   left: 0;
+  width: 100%;
+  text-align: center;
   color: #fff;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 5px;
+  background-color: rgba(0, 0, 0, 0.75);
   font-size: 12px;
-  width: 150px;
-  line-height: 1.2;
-  white-space: pre-wrap;
+  padding: 2px 0;
+  pointer-events: none; /* Make sure it doesn't interfere with mouse events on the box */
 }
 
 /* Toolbar */
