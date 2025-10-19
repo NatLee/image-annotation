@@ -143,7 +143,8 @@ const ImageAnnotationSystem: React.FC = () => {
 
       // Count annotations per user
       parsed.annotation_records.forEach((record: any) => {
-        const user = record.annotated_by || 'Unknown';
+        // Use 'annotator' field which is the correct field name in AnnotationSession
+        const user = record.annotator || 'Unknown';
         if (!userStats[user]) {
           userStats[user] = 0;
         }
