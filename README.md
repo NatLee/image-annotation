@@ -101,10 +101,7 @@ npm start
 }
 ```
 
-
-## ✅ Feature Parity
-
-All features from the original vanilla JavaScript system have been preserved:
+## ✅ Feature
 
 | Feature | Status |
 |---------|--------|
@@ -128,5 +125,5 @@ All features from the original vanilla JavaScript system have been preserved:
 
 ## 📝 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+[LICENSE](LICENSE)
 
