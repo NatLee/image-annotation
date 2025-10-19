@@ -150,10 +150,12 @@ function updateBoxData(boxElement) {
         width: boxElement.width(),
         height: boxElement.height()
     };
+    // Convert display coordinates to original image coordinates for storage.
     var originalCoords = displayToOriginal(displayCoords);
 
     var index = boxElement.index('.resize-div');
     if (index > -1) {
+        // Store the original coordinates in the main array.
         ary[index] = {
             left: originalCoords.x,
             top: originalCoords.y,
@@ -293,7 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('del').addEventListener('click', deleteEvent);
     document.getElementById('rank').addEventListener('click', rankEvent);
     document.getElementById('details').addEventListener('click', detailsEvent);
-    document.getElementById('export').addEventListener('click', exportAnnotations);
+    document.getElementById('save-annotations').addEventListener('click', saveAnnotationSession);
+    document.getElementById('export-all').addEventListener('click', exportAllAnnotations);
+    document.getElementById('clear-all').addEventListener('click', clearAllData);
     document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
@@ -479,4 +483,112 @@ function downloadJSON(data, filename) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// Save current annotation session to localStorage
+function saveAnnotationSession() {
+  // Get existing data from localStorage
+  let existingData = JSON.parse(localStorage.getItem('annotation_data')) || {
+    annotation_records: [],
+    total_images: 0,
+    total_annotations: 0,
+    last_updated: null
+  };
+
+  const img = $('.main-image');
+  const originalImageWidth = img[0].naturalWidth;
+  const originalImageHeight = img[0].naturalHeight;
+  const displayWidth = img.width();
+  const displayHeight = img.height();
+  const scaleFactor = displayWidth / originalImageWidth;
+  const userName = document.getElementById("userName").value || 'anonymous';
+
+  // Create new session record
+  const newSession = {
+    session_id: `session_${Date.now()}`,
+    image_url: imgURL,
+    original_size: {
+      width: originalImageWidth,
+      height: originalImageHeight
+    },
+    display_size: {
+      width: displayWidth,
+      height: displayHeight
+    },
+    scale_factor: scaleFactor,
+    annotator: userName,
+    timestamp: new Date().toISOString(),
+    // The 'ary' array already contains coordinates in the original image's dimensions,
+    // so no conversion is needed here.
+    bounding_boxes: ary.map((box, index) => ({
+      id: index + 1,
+      x: box.left,
+      y: box.top,
+      width: box.width,
+      height: box.height,
+      label: 'anime_face'
+    }))
+  };
+
+  // Add to existing data
+  existingData.annotation_records.push(newSession);
+  existingData.total_images = existingData.annotation_records.length;
+  existingData.total_annotations = existingData.annotation_records.reduce(
+    (total, record) => total + record.bounding_boxes.length, 0
+  );
+  existingData.last_updated = new Date().toISOString();
+
+  // Save back to localStorage
+  localStorage.setItem('annotation_data', JSON.stringify(existingData));
+
+  // Show success message
+  alert(`Annotation saved! Total: ${existingData.total_images} images, ${existingData.total_annotations} annotations`);
+}
+
+// Export all annotation records from localStorage
+function exportAllAnnotations() {
+  // Get all data from localStorage
+  const allData = JSON.parse(localStorage.getItem('annotation_data'));
+
+  if (!allData || allData.annotation_records.length === 0) {
+    alert('No annotation data found to export!');
+    return;
+  }
+
+  // Create export data with metadata
+  const exportData = {
+    export_info: {
+      export_date: new Date().toISOString(),
+      total_images: allData.total_images,
+      total_annotations: allData.total_annotations,
+      data_range: {
+        first_annotation: allData.annotation_records[0]?.timestamp,
+        last_annotation: allData.annotation_records[allData.annotation_records.length - 1]?.timestamp
+      }
+    },
+    annotation_records: allData.annotation_records
+  };
+
+  // Download as JSON file
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: 'application/json'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `all_annotations_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert(`Exported ${allData.total_images} images with ${allData.total_annotations} annotations!`);
+}
+
+// Clear all stored data (with confirmation)
+function clearAllData() {
+  if (confirm('Are you sure you want to delete all annotation data? This cannot be undone.')) {
+    localStorage.removeItem('annotation_data');
+    alert('All annotation data cleared!');
+  }
 }
