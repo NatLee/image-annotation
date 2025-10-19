@@ -1,12 +1,15 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+
 const nextConfig = {
   output: 'export',
   trailingSlash: true,
   images: {
     unoptimized: true
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/image-annotation-system' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/image-annotation-system/' : '',
+  // Dynamic base path handling from environment variables
+  basePath: isProd ? process.env.NEXT_PUBLIC_BASE_PATH : '',
+  assetPrefix: isProd ? process.env.NEXT_PUBLIC_BASE_PATH : '',
 }
 
 module.exports = nextConfig

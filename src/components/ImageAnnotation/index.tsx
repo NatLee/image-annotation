@@ -11,6 +11,7 @@ const ImageAnnotationSystem: React.FC = () => {
   const {
     currentImage,
     boundingBoxes,
+    imageMetadata,
     loadImage,
     addBoundingBox,
     updateBoundingBox,
@@ -33,6 +34,10 @@ const ImageAnnotationSystem: React.FC = () => {
     submitAnnotation();
   }, [boundingBoxes, submitAnnotation]);
 
+  const handleDraw = () => {
+    setIsDrawing(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -50,6 +55,7 @@ const ImageAnnotationSystem: React.FC = () => {
           <div className="lg:col-span-3">
             <ImageCanvas
               image={currentImage}
+              imageMetadata={imageMetadata}
               boundingBoxes={boundingBoxes}
               onAddBoundingBox={addBoundingBox}
               onUpdateBoundingBox={updateBoundingBox}
@@ -65,6 +71,7 @@ const ImageAnnotationSystem: React.FC = () => {
               onImageLoad={handleImageLoad}
               onSubmit={handleSubmit}
               onClear={clearAnnotations}
+              onDraw={handleDraw}
               boundingBoxCount={boundingBoxes.length}
               hasImage={!!currentImage}
             />
