@@ -153,10 +153,12 @@ const ImageCanvas: React.FC<ImageCanvasProps> = ({
         const { handle, originalBox } = interactionState;
         let { x: newX, y: newY, width: newWidth, height: newHeight } = originalToDisplay(originalBox);
 
-        if (handle.includes('right')) newWidth += dx;
-        if (handle.includes('left')) { newX += dx; newWidth -= dx; }
-        if (handle.includes('bottom')) newHeight += dy;
-        if (handle.includes('top')) { newY += dy; newHeight -= dy; }
+        if (handle) {
+          if (handle.includes('right')) newWidth += dx;
+          if (handle.includes('left')) { newX += dx; newWidth -= dx; }
+          if (handle.includes('bottom')) newHeight += dy;
+          if (handle.includes('top')) { newY += dy; newHeight -= dy; }
+        }
 
         const finalBox = displayToOriginal({ x: newX, y: newY, width: newWidth, height: newHeight });
         onUpdateBoundingBox(interactionState.boxId!, finalBox);
