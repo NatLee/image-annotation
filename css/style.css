@@ -38,6 +38,7 @@ body, html {
   padding: 1em;
   box-sizing: border-box;
   min-height: 0; /* Flexbox fix to prevent overflow */
+  position: relative;
 }
 
 .main-image {

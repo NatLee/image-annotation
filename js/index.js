@@ -1,8 +1,6 @@
 var ary = [];
 let imgURL;
 let imgName;
-var fixTop = 0;
-var fixLeft = 0;
 
 // Use the waifu.im API to fetch a random image
 fetch('https://api.waifu.im/search')
@@ -242,9 +240,18 @@ function detailsEvent(e) {
 }
 
 function updateImageDimensions() {
-    var imgW = $('.main-image').outerWidth();
-    var imgH = $('.main-image').outerHeight();
-    $('#image-dimensions').text(`Image: ${imgW} x ${imgH}`);
+    var img = $('.main-image');
+    var originalWidth = img[0].naturalWidth;
+    var originalHeight = img[0].naturalHeight;
+    var displayWidth = img.width();
+    var displayHeight = img.height();
+    var scale = (displayWidth / originalWidth) * 100;
+
+    $('#image-dimensions').html(`
+        Original: ${originalWidth}×${originalHeight} |
+        Display: ${Math.round(displayWidth)}×${Math.round(displayHeight)} |
+        Scale: ${scale.toFixed(2)}%
+    `);
 }
 
 function backToGameEvent(e) {
@@ -288,9 +295,6 @@ function calculateViewport() {
         'height': '100%'
     });
 
-    var offset = container.offset();
-    fixTop = offset.top;
-    fixLeft = offset.left;
 }
 
 function originalToDisplay(originalCoords) {
@@ -348,5 +352,41 @@ function redrawBoxes() {
 
 window.addEventListener('resize', () => {
     calculateViewport();
+    updateImageDimensions();
     redrawBoxes();
+});
+
+function validateCoordinates() {
+    var container = $('.image-container');
+    var overlay = container.find('.grid-overlay');
+    if (overlay.length) {
+        overlay.remove();
+        return;
+    }
+
+    overlay = $('<div class="grid-overlay"></div>').css({
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none'
+    });
+
+    for (var i = 0; i < 10; i++) {
+        var x = (i * 10) + '%';
+        var y = (i * 10) + '%';
+
+        overlay.append($('<div></div>').css({ position: 'absolute', top: 0, left: x, width: '1px', height: '100%', backgroundColor: 'rgba(255, 0, 0, 0.5)' }));
+        overlay.append($('<div></div>').css({ position: 'absolute', top: y, left: 0, width: '100%', height: '1px', backgroundColor: 'rgba(255, 0, 0, 0.5)' }));
+    }
+
+    container.append(overlay);
+}
+
+// Keydown event listener for 'd' key to toggle validation grid
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'd') {
+        validateCoordinates();
+    }
 });
