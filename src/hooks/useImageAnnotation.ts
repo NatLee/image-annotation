@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
 import { BoundingBox, AnnotationSession } from '@/types/annotation';
 import { saveAnnotationToStorage } from '@/utils/storage';
+import { resolveImagePath, isExternalUrl } from '@/utils/paths';
 
 export const useImageAnnotation = () => {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  // ... other state
   const [boundingBoxes, setBoundingBoxes] = useState<BoundingBox[]>([]);
   const [imageMetadata, setImageMetadata] = useState<{
     originalSize: { width: number; height: number };
@@ -12,7 +15,12 @@ export const useImageAnnotation = () => {
   } | null>(null);
 
   const loadImage = useCallback((imageUrl: string) => {
-    setCurrentImage(imageUrl);
+    // Store the original URL for saving
+    setOriginalImageUrl(imageUrl);
+
+    // Resolve the path for display
+    const resolvedUrl = resolveImagePath(imageUrl);
+    setCurrentImage(resolvedUrl);
     setBoundingBoxes([]);
 
     // Load image to get dimensions
@@ -31,9 +39,40 @@ export const useImageAnnotation = () => {
         scaleFactor
       });
     };
-    img.src = imageUrl;
+
+    img.onerror = () => {
+      alert('Failed to load image. Please check the URL or try a different image.');
+      setCurrentImage(null);
+      setOriginalImageUrl(null);
+    };
+
+    img.src = resolvedUrl;
   }, []);
 
+  const submitAnnotation = useCallback(() => {
+    if (!originalImageUrl || !imageMetadata) return;
+
+    const session: AnnotationSession = {
+      session_id: `session_${Date.now()}`,
+      image_url: originalImageUrl, // Save original URL, not resolved path
+      original_size: imageMetadata.originalSize,
+      display_size: imageMetadata.displaySize,
+      scale_factor: imageMetadata.scaleFactor,
+      annotator: 'anonymous',
+      timestamp: new Date().toISOString(),
+      bounding_boxes: boundingBoxes
+    };
+
+    saveAnnotationToStorage(session);
+
+    // Clear current state
+    setBoundingBoxes([]);
+    setCurrentImage(null);
+    setOriginalImageUrl(null);
+    alert('Annotation submitted successfully!');
+  }, [originalImageUrl, imageMetadata, boundingBoxes]);
+
+  // ... rest of the hook
   const addBoundingBox = useCallback((box: Omit<BoundingBox, 'id'>) => {
     const newBox: BoundingBox = {
       ...box,
@@ -51,27 +90,6 @@ export const useImageAnnotation = () => {
   const deleteBoundingBox = useCallback((id: string) => {
     setBoundingBoxes(prev => prev.filter(box => box.id !== id));
   }, []);
-
-  const submitAnnotation = useCallback(() => {
-    if (!currentImage || !imageMetadata) return;
-
-    const session: AnnotationSession = {
-      session_id: `session_${Date.now()}`,
-      image_url: currentImage,
-      original_size: imageMetadata.originalSize,
-      display_size: imageMetadata.displaySize,
-      scale_factor: imageMetadata.scaleFactor,
-      annotator: 'anonymous',
-      timestamp: new Date().toISOString(),
-      bounding_boxes: boundingBoxes
-    };
-
-    saveAnnotationToStorage(session);
-
-    // Clear current state
-    setBoundingBoxes([]);
-    alert('Annotation submitted successfully!');
-  }, [currentImage, imageMetadata, boundingBoxes]);
 
   const clearAnnotations = useCallback(() => {
     setBoundingBoxes([]);
