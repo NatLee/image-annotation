@@ -94,7 +94,6 @@ function initBox(box) {
     });
 
     box.draggable({
-        containment: "parent",
         drag: function(e, ui) {
             constrainBoundingBox($(this));
             updateBoxData($(this));
@@ -104,7 +103,6 @@ function initBox(box) {
             updateBoxData($(this));
         }
     }).resizable({
-        containment: "parent",
         resize: function(e, ui) {
             constrainBoundingBox($(this));
             updateBoxData($(this));
@@ -117,25 +115,27 @@ function initBox(box) {
 }
 
 function constrainBoundingBox(box) {
-    var position = box.position();
-    var container = box.parent();
-    var containerWidth = container.width();
-    var containerHeight = container.height();
-    var boxWidth = box.width();
-    var boxHeight = box.height();
-
-    if (position.left < 0) {
-        box.css('left', '0px');
-    }
-    if (position.top < 0) {
-        box.css('top', '0px');
-    }
-    if (position.left + boxWidth > containerWidth) {
-        box.css('left', (containerWidth - boxWidth) + 'px');
-    }
-    if (position.top + boxHeight > containerHeight) {
-        box.css('top', (containerHeight - boxHeight) + 'px');
-    }
+    var img = $('.main-image');
+    var imageWidth = img[0].naturalWidth;
+    var imageHeight = img[0].naturalHeight;
+    var displayCoords = {
+        x: box.position().left,
+        y: box.position().top,
+        width: box.width(),
+        height: box.height()
+    };
+    var originalCoords = displayToOriginal(displayCoords);
+    originalCoords.x = Math.max(0, Math.min(originalCoords.x, imageWidth - originalCoords.width));
+    originalCoords.y = Math.max(0, Math.min(originalCoords.y, imageHeight - originalCoords.height));
+    originalCoords.width = Math.min(originalCoords.width, imageWidth - originalCoords.x);
+    originalCoords.height = Math.min(originalCoords.height, imageHeight - originalCoords.y);
+    var newDisplayCoords = originalToDisplay(originalCoords);
+    box.css({
+        left: newDisplayCoords.x + 'px',
+        top: newDisplayCoords.y + 'px',
+        width: newDisplayCoords.width + 'px',
+        height: newDisplayCoords.height + 'px'
+    });
 }
 
 $(function() {
@@ -294,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rank').addEventListener('click', rankEvent);
     document.getElementById('details').addEventListener('click', detailsEvent);
     document.getElementById('export').addEventListener('click', exportAnnotations);
-    document.getElementById('preview-roi').addEventListener('click', previewROI);
     document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
@@ -424,27 +423,50 @@ function exportAnnotations() {
     const img = $('.main-image');
     const originalImageWidth = img[0].naturalWidth;
     const originalImageHeight = img[0].naturalHeight;
+    const displayWidth = img.width();
+    const displayHeight = img.height();
+    const scaleFactor = displayWidth / originalImageWidth;
     const userName = document.getElementById("userName").value || 'anonymous';
 
     const annotationData = {
         image_url: imgURL,
-        image_size: {
+        original_size: {
             width: originalImageWidth,
             height: originalImageHeight
         },
+        display_size: {
+            width: Math.round(displayWidth),
+            height: Math.round(displayHeight)
+        },
+        scale_factor: scaleFactor,
         annotator: userName,
         timestamp: new Date().toISOString(),
-        annotations: ary.map((box, index) => ({
-            id: index + 1,
-            x: box.left,
-            y: box.top,
-            width: box.width,
-            height: box.height,
-            label: "anime_face"
-        }))
+        bounding_boxes: ary.map((box, index) => {
+            const displayCoords = originalToDisplay({
+                x: box.left,
+                y: box.top,
+                width: box.width,
+                height: box.height
+            });
+            return {
+                id: index + 1,
+                original_coords: {
+                    x: box.left,
+                    y: box.top,
+                    width: box.width,
+                    height: box.height
+                },
+                display_coords: {
+                    x: displayCoords.x,
+                    y: displayCoords.y,
+                    width: displayCoords.width,
+                    height: displayCoords.height
+                }
+            };
+        })
     };
-
-    downloadJSON(annotationData, `annotation_${Date.now()}.json`);
+    localStorage.setItem('annotations_' + Date.now(), JSON.stringify(annotationData));
+    downloadJSON(annotationData, `annotations_${Date.now()}.json`);
 }
 
 function downloadJSON(data, filename) {
@@ -457,35 +479,4 @@ function downloadJSON(data, filename) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-}
-
-function previewROI() {
-    var selectedBox = $('.resize-div.selected');
-    if (selectedBox.length === 0) {
-        swal("No box selected!", "Please select a box to preview the ROI.", "warning");
-        return;
-    }
-
-    var index = selectedBox.index('.resize-div');
-    var boxData = ary[index];
-    var img = $('.main-image');
-    var originalWidth = img[0].naturalWidth;
-    var originalHeight = img[0].naturalHeight;
-
-    var canvas = document.createElement('canvas');
-    canvas.width = boxData.width;
-    canvas.height = boxData.height;
-    var ctx = canvas.getContext('2d');
-
-    var image = new Image();
-    image.crossOrigin = "anonymous";
-    image.src = imgURL;
-    image.onload = function() {
-        ctx.drawImage(image, boxData.left, boxData.top, boxData.width, boxData.height, 0, 0, boxData.width, boxData.height);
-        swal({
-            title: "ROI Preview",
-            text: `Coordinates: (${parseInt(boxData.left)}, ${parseInt(boxData.top)}) - ${parseInt(boxData.width)}×${parseInt(boxData.height)}`,
-            content: canvas,
-        });
-    };
 }

@@ -34,7 +34,6 @@ body, html {
   justify-content: center;
   align-items: center;
   height: 100%;
-  padding: 1em;
   box-sizing: border-box;
   min-height: 0; /* Flexbox fix to prevent overflow */
   position: relative;
