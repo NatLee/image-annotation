@@ -96,21 +96,46 @@ function initBox(box) {
     box.draggable({
         containment: "parent",
         drag: function(e, ui) {
+            constrainBoundingBox($(this));
             updateBoxData($(this));
         },
         stop: function(e, ui) {
+            constrainBoundingBox($(this));
             updateBoxData($(this));
         }
     }).resizable({
-        aspectRatio: 1 / 1,
         containment: "parent",
         resize: function(e, ui) {
+            constrainBoundingBox($(this));
             updateBoxData($(this));
         },
         stop: function(e, ui) {
+            constrainBoundingBox($(this));
             updateBoxData($(this));
         }
     });
+}
+
+function constrainBoundingBox(box) {
+    var position = box.position();
+    var container = box.parent();
+    var containerWidth = container.width();
+    var containerHeight = container.height();
+    var boxWidth = box.width();
+    var boxHeight = box.height();
+
+    if (position.left < 0) {
+        box.css('left', '0px');
+    }
+    if (position.top < 0) {
+        box.css('top', '0px');
+    }
+    if (position.left + boxWidth > containerWidth) {
+        box.css('left', (containerWidth - boxWidth) + 'px');
+    }
+    if (position.top + boxHeight > containerHeight) {
+        box.css('top', (containerHeight - boxHeight) + 'px');
+    }
 }
 
 $(function() {
@@ -132,7 +157,8 @@ function updateBoxData(boxElement) {
         ary[index] = {
             left: originalCoords.x,
             top: originalCoords.y,
-            size: originalCoords.width
+            width: originalCoords.width,
+            height: originalCoords.height,
         };
     }
 
@@ -156,7 +182,8 @@ function addEvent(e, isDefault = false) {
     var originalBox = {
         left: left,
         top: top,
-        size: size
+        width: size,
+        height: size
     };
 
     if (!isDefault) {
@@ -171,8 +198,8 @@ function addEvent(e, isDefault = false) {
     var displayBox = originalToDisplay({
         x: originalBox.left,
         y: originalBox.top,
-        width: originalBox.size,
-        height: originalBox.size
+        width: originalBox.width,
+        height: originalBox.height
     });
 
     var newBox = $('<div class="resize-div"></div>').css({
@@ -266,6 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('del').addEventListener('click', deleteEvent);
     document.getElementById('rank').addEventListener('click', rankEvent);
     document.getElementById('details').addEventListener('click', detailsEvent);
+    document.getElementById('export').addEventListener('click', exportAnnotations);
+    document.getElementById('preview-roi').addEventListener('click', previewROI);
     document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
 });
 
@@ -337,8 +366,8 @@ function redrawBoxes() {
             var displayBox = originalToDisplay({
                 x: originalBox.left,
                 y: originalBox.top,
-                width: originalBox.size,
-                height: originalBox.size
+                width: originalBox.width,
+                height: originalBox.height
             });
             $(this).css({
                 'left': displayBox.x + 'px',
@@ -390,3 +419,73 @@ document.addEventListener('keydown', (e) => {
         validateCoordinates();
     }
 });
+
+function exportAnnotations() {
+    const img = $('.main-image');
+    const originalImageWidth = img[0].naturalWidth;
+    const originalImageHeight = img[0].naturalHeight;
+    const userName = document.getElementById("userName").value || 'anonymous';
+
+    const annotationData = {
+        image_url: imgURL,
+        image_size: {
+            width: originalImageWidth,
+            height: originalImageHeight
+        },
+        annotator: userName,
+        timestamp: new Date().toISOString(),
+        annotations: ary.map((box, index) => ({
+            id: index + 1,
+            x: box.left,
+            y: box.top,
+            width: box.width,
+            height: box.height,
+            label: "anime_face"
+        }))
+    };
+
+    downloadJSON(annotationData, `annotation_${Date.now()}.json`);
+}
+
+function downloadJSON(data, filename) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function previewROI() {
+    var selectedBox = $('.resize-div.selected');
+    if (selectedBox.length === 0) {
+        swal("No box selected!", "Please select a box to preview the ROI.", "warning");
+        return;
+    }
+
+    var index = selectedBox.index('.resize-div');
+    var boxData = ary[index];
+    var img = $('.main-image');
+    var originalWidth = img[0].naturalWidth;
+    var originalHeight = img[0].naturalHeight;
+
+    var canvas = document.createElement('canvas');
+    canvas.width = boxData.width;
+    canvas.height = boxData.height;
+    var ctx = canvas.getContext('2d');
+
+    var image = new Image();
+    image.crossOrigin = "anonymous";
+    image.src = imgURL;
+    image.onload = function() {
+        ctx.drawImage(image, boxData.left, boxData.top, boxData.width, boxData.height, 0, 0, boxData.width, boxData.height);
+        swal({
+            title: "ROI Preview",
+            text: `Coordinates: (${parseInt(boxData.left)}, ${parseInt(boxData.top)}) - ${parseInt(boxData.width)}×${parseInt(boxData.height)}`,
+            content: canvas,
+        });
+    };
+}
