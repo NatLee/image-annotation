@@ -128,16 +128,40 @@ const ImageAnnotationSystem: React.FC = () => {
 
   // Show rank panel
   const handleRank = () => {
-    // Load rank data from localStorage
-    const data = localStorage.getItem('rankData') || '{}';
-    const rankObj = JSON.parse(data);
-    const sortable: Array<[string, number]> = [];
-    for (const user in rankObj) {
-      sortable.push([user, rankObj[user]]);
+    // Parse annotation_data to calculate rank
+    const data = localStorage.getItem('annotation_data');
+    
+    if (!data) {
+      setRankData([]);
+      setShowRank(true);
+      return;
     }
-    sortable.sort((a, b) => b[1] - a[1]);
-    setRankData(sortable);
-    setShowRank(true);
+
+    try {
+      const parsed = JSON.parse(data);
+      const userStats: { [key: string]: number } = {};
+
+      // Count annotations per user
+      parsed.annotation_records.forEach((record: any) => {
+        const user = record.annotated_by || 'Unknown';
+        if (!userStats[user]) {
+          userStats[user] = 0;
+        }
+        // Count the number of images annotated by this user
+        userStats[user] += 1;
+      });
+
+      // Convert to sorted array
+      const sortable: Array<[string, number]> = Object.entries(userStats);
+      sortable.sort((a, b) => b[1] - a[1]);
+      
+      setRankData(sortable);
+      setShowRank(true);
+    } catch (error) {
+      console.error('Failed to parse annotation data for ranking:', error);
+      setRankData([]);
+      setShowRank(true);
+    }
   };
 
   // Show details dialog
