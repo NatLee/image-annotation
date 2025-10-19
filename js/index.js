@@ -31,58 +31,42 @@ document.getElementById('count').innerHTML = count;
 
 
 function clickEvent(e) {
-    document.getElementById("submit").disabled = true;
-    swal({
-        title: "你確定嗎?",
-        text: "一旦按下OK，此次結果將會送出。",
-        icon: "warning",
-        buttons: ["不要", true],
-        dangerMode: true,
-    }).then((willDelete) => {
-        if (willDelete) {
-            var googleForm = 'https://docs.google.com/forms/d/e/1FAIpQLScGl6BSyRiCaIVt67Dkzlr7okTQQ3Wnt7VBpivvVG5hbly8tA/formResponse?';
-            var entryImgName = 'entry.758844231=';
-            var entryBoxHeightOffset = 'entry.1881696409=';
-            var entryBoxLeftOffset = 'entry.669378490=';
-            var entryBoxSize = 'entry.676533522=';
-            var entryUser = 'entry.1877828300=';
-            userName = document.getElementById("userName").value;
-            var entryUserSend = entryUser + userName;
-            if (!ary.length) { // No boxes
-                $.get(googleForm + entryImgName + imgName + '&' + entryBoxHeightOffset + '-1&' + entryBoxLeftOffset + '-1&' + entryBoxSize + '-1&' + entryUserSend);
-            } else {
-                for (var i = 0; i < ary.length; i++) {
-                    var box = ary[i];
-                    var boxTop = parseInt(box.top);
-                    var boxLeft = parseInt(box.left);
-                    var boxSize = parseInt(box.size);
+  // Validation checks
+  if (!imgURL) {
+    alert('Please load an image first!');
+    return;
+  }
 
-                    var entryImgNameSend = entryImgName + imgName;
-                    var entryBoxHeightOffsetSend = entryBoxHeightOffset + boxTop;
-                    var entryBoxLeftOffsetSend = entryBoxLeftOffset + boxLeft;
-                    var entryBoxSizeSend = entryBoxSize + boxSize;
-                    var googleFormSend = googleForm + entryImgNameSend + '&' + entryBoxHeightOffsetSend + '&' + entryBoxLeftOffsetSend + '&' + entryBoxSizeSend + '&' + entryUserSend;
-                    $.get(googleFormSend);
-                }
-            }
-            localStorage.setItem('userName', userName);
-            var newCount = parseInt(count) + 1;
-            localStorage.setItem('count', newCount);
+  if (ary.length === 0) {
+    alert('Please create at least one bounding box before submitting!');
+    return;
+  }
 
-            var rankData = JSON.parse(localStorage.getItem('rankData')) || {};
-            rankData[userName] = newCount;
-            localStorage.setItem('rankData', JSON.stringify(rankData));
+  // Check if this image was already annotated
+  const existingData = JSON.parse(localStorage.getItem('annotation_data')) || {annotation_records: []};
+  const alreadyAnnotated = existingData.annotation_records.some(record => record.image_url === imgURL);
 
-            swal("送出成功！請繼續努力！", {
-                icon: "success",
-            }).then((value) => {
-                location.reload();
-            });
-        } else {
-            swal("請再次確認位置。");
-            document.getElementById("submit").disabled = false;
-        }
-    });
+  if (alreadyAnnotated) {
+    if (!confirm('This image has already been annotated. Do you want to overwrite the previous annotation?')) {
+      return;
+    }
+    // Remove previous annotation for this image
+    existingData.annotation_records = existingData.annotation_records.filter(record => record.image_url !== imgURL);
+    localStorage.setItem('annotation_data', JSON.stringify(existingData));
+  }
+
+  // Auto-save annotation
+  saveAnnotationSession();
+
+  // Show success with summary
+  const updatedData = JSON.parse(localStorage.getItem('annotation_data'));
+  alert(`Annotation submitted successfully!\nTotal annotated images: ${updatedData.total_images}\nTotal annotations: ${updatedData.total_annotations}`);
+
+  // Clear current annotation state
+  clearCurrentAnnotation();
+
+  // Reload the page for the next image
+  location.reload();
 }
 
 function initBox(box) {
@@ -295,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('del').addEventListener('click', deleteEvent);
     document.getElementById('rank').addEventListener('click', rankEvent);
     document.getElementById('details').addEventListener('click', detailsEvent);
-    document.getElementById('save-annotations').addEventListener('click', saveAnnotationSession);
     document.getElementById('export-all').addEventListener('click', exportAllAnnotations);
     document.getElementById('clear-all').addEventListener('click', clearAllData);
     document.getElementById('back-to-game').addEventListener('click', backToGameEvent);
@@ -591,4 +574,12 @@ function clearAllData() {
     localStorage.removeItem('annotation_data');
     alert('All annotation data cleared!');
   }
+}
+
+// Clear current annotation state after submit
+function clearCurrentAnnotation() {
+  // Clear all bounding boxes from display
+  ary = [];
+  // Remove bounding box elements from DOM
+  $('.resize-div').remove();
 }
