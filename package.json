@@ -1,7 +1,7 @@
 {
-  "name": "image-annotation-system",
+  "name": "aninet",
   "version": "1.0.0",
-  "description": "React + Next.js image annotation system for ML training data",
+  "description": "Anime image annotation system for ML training data using waifu.im API",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

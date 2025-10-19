@@ -1,5 +1,4 @@
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-const repoName = process.env.NEXT_PUBLIC_REPO_NAME || 'image-annotation-system';
 
 export const getBasePath = () => basePath;
 
