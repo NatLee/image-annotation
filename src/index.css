@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+
+/* A dark, quiet workspace so the image is the brightest thing on screen. */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --color-ink-950: #08090c;
+  --color-ink-900: #0f1116;
+  --color-ink-850: #14171d;
+  --color-ink-800: #1a1e26;
+  --color-ink-750: #20252f;
+  --color-ink-700: #2a303b;
+  --color-ink-600: #3a414e;
+  --color-ink-500: #5b6474;
+  --color-ink-400: #8a93a4;
+  --color-ink-300: #b3bac7;
+  --color-ink-200: #d4d9e2;
+  --color-ink-100: #eceff4;
+
+  /* v1 boxes were green; the accent keeps that colour. */
+  --color-accent: #22c55e;
+  --color-accent-strong: #16a34a;
+  --color-accent-soft: rgb(34 197 94 / 0.14);
+  --color-warn: #f59e0b;
+  --color-danger: #f43f5e;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-ink-950);
+    color: var(--color-ink-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    color-scheme: dark;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  dialog {
+    color: inherit;
+  }
+
+  dialog::backdrop {
+    background: rgb(4 5 8 / 0.65);
+    backdrop-filter: blur(3px);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-700) transparent;
+  }
+}
+
+@layer components {
+  .kbd {
+    display: inline-flex;
+    min-width: 1.4rem;
+    height: 1.35rem;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.35rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--color-ink-600);
+    border-bottom-width: 2px;
+    background: var(--color-ink-800);
+    color: var(--color-ink-200);
+    font: 500 0.7rem/1 var(--font-mono);
+    white-space: nowrap;
+  }
+
+  /* Subtle checkerboard behind the image so transparent pixels and edges read. */
+  .stage-bg {
+    background-color: var(--color-ink-950);
+    background-image:
+      linear-gradient(45deg, var(--color-ink-900) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--color-ink-900) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--color-ink-900) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--color-ink-900) 75%);
+    background-size: 24px 24px;
+    background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+  }
+
+  .panel-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-400);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes drop-pulse {
+  50% {
+    border-color: var(--color-accent);
+  }
+}
+
+/* Tooltips: `data-tip="Undo · Ctrl+Z"` on any control. */
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.4rem;
+  background: var(--color-ink-100);
+  color: var(--color-ink-950);
+  font: 500 0.72rem/1.2 var(--font-sans);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tip-in 0.12s 0.3s both;
+}
+
+[data-tip-side='top']:hover::after,
+[data-tip-side='top']:focus-visible::after {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+[data-tip-side='left']:hover::after,
+[data-tip-side='left']:focus-visible::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+  }
+}
