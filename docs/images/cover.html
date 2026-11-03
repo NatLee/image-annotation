@@ -1,0 +1,61 @@
+<!doctype html>
+<!-- Source of cover.png (1280×640, GitHub social preview). Re-render with scripts/screenshots.mjs. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>image-annotation cover</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        width: 1280px;
+        height: 640px;
+        overflow: hidden;
+        position: relative;
+        background:
+          radial-gradient(900px 500px at 85% 40%, rgb(34 197 94 / 0.16), transparent 70%),
+          linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+          linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px) 0 0 / 40px 40px,
+          #08090c;
+        color: #eceff4;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      }
+      .shot {
+        position: absolute;
+        left: 600px;
+        top: 70px;
+        width: 860px;
+        border-radius: 18px;
+        border: 1px solid #2a303b;
+        box-shadow: 0 40px 90px rgb(0 0 0 / 0.65), 0 0 0 8px rgb(34 197 94 / 0.06);
+      }
+      .copy { position: absolute; left: 72px; top: 92px; width: 560px; }
+      .brand { display: flex; align-items: center; gap: 14px; font: 600 22px/1 'Cascadia Mono', Consolas, monospace; color: #b3bac7; }
+      .target { position: relative; display: inline-block; margin-top: 58px; padding: 14px 22px 18px; border: 3px solid #22c55e; background: rgb(34 197 94 / 0.1); }
+      .target h1 { font-size: 76px; line-height: 1; font-weight: 800; letter-spacing: -0.04em; }
+      .chip { position: absolute; left: -3px; top: -30px; padding: 5px 9px; border-radius: 5px; background: #22c55e; color: #08090c; font: 700 15px/1 'Cascadia Mono', Consolas, monospace; }
+      .handle { position: absolute; width: 14px; height: 14px; border-radius: 3px; background: #fff; border: 3px solid #22c55e; }
+      .tl { left: -9px; top: -9px; } .tr { right: -9px; top: -9px; } .bl { left: -9px; bottom: -9px; } .br { right: -9px; bottom: -9px; }
+      .tag { margin-top: 34px; font-size: 34px; line-height: 1.2; font-weight: 600; color: #d4d9e2; }
+      .formats { display: flex; gap: 10px; margin-top: 30px; }
+      .formats span { padding: 9px 14px; border-radius: 10px; border: 1px solid #3a414e; background: #14171d; font: 600 19px/1 'Cascadia Mono', Consolas, monospace; color: #eceff4; }
+      .meta { margin-top: 26px; font-size: 20px; color: #8a93a4; }
+    </style>
+  </head>
+  <body>
+    <img class="shot" src="editor.png" alt="" />
+    <div class="copy">
+      <div class="brand">
+        <svg width="34" height="34" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="rgb(34 197 94 / .18)" stroke="#22c55e" stroke-width="2"/><g fill="#eceff4"><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/></g></svg>
+        NatLee / image-annotation
+      </div>
+      <div class="target">
+        <span class="chip">anime_face&nbsp;&nbsp;whole head</span>
+        <h1>Draw boxes.</h1>
+        <i class="handle tl"></i><i class="handle tr"></i><i class="handle bl"></i><i class="handle br"></i>
+      </div>
+      <p class="tag">Keyboard-first image annotation that runs in your browser.</p>
+      <div class="formats"><span>JSON</span><span>COCO</span><span>YOLO</span><span>VOC</span></div>
+      <p class="meta">Zoom · undo · classes · folders · nothing to install</p>
+    </div>
+  </body>
+</html>

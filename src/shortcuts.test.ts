@@ -39,3 +39,11 @@ describe('shortcuts', () => {
     expect(hint('pickClass')).toBe('1 … 9');
   });
 });
+
+describe('README', () => {
+  it('lists every shortcut, so the docs match the keys', async () => {
+    const { readFileSync } = await import('node:fs');
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    for (const shortcut of SHORTCUTS) expect(readme, shortcut.label).toContain(`| ${shortcut.label} |`);
+  });
+});
