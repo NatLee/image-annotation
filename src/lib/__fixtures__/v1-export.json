@@ -1,0 +1,38 @@
+{
+  "export_info": {
+    "export_date": "2025-10-20T08:15:02.113Z",
+    "total_images": 2,
+    "total_annotations": 3,
+    "data_range": {
+      "first_annotation": "2025-10-20T08:01:44.871Z",
+      "last_annotation": "2025-10-20T08:03:10.502Z"
+    }
+  },
+  "annotation_records": [
+    {
+      "session_id": "session_1760947304871",
+      "image_url": "https://cdn.waifu.im/7581.jpg",
+      "original_size": { "width": 1920, "height": 1080 },
+      "display_size": { "width": 1900, "height": 1068 },
+      "scale_factor": 0.9895833333333334,
+      "annotator": "nat",
+      "timestamp": "2025-10-20T08:01:44.871Z",
+      "bounding_boxes": [
+        { "id": "box_1760947290112_k3j9x0a1b", "x": 825, "y": 405, "width": 270, "height": 270, "label": "anime_face" },
+        { "id": "box_1760947299054_q8w2e4r6t", "x": 1201, "y": 333, "width": 188, "height": 201, "label": "anime_face" }
+      ]
+    },
+    {
+      "session_id": "session_1760947390502",
+      "image_url": "https://cdn.waifu.im/9104.png",
+      "original_size": { "width": 1400, "height": 2000 },
+      "display_size": { "width": 562, "height": 803 },
+      "scale_factor": 0.40142857142857147,
+      "annotator": "anonymous",
+      "timestamp": "2025-10-20T08:03:10.502Z",
+      "bounding_boxes": [
+        { "id": "box_1760947380777_z1x2c3v4b", "x": 525, "y": 825, "width": 350, "height": 350, "label": "anime_face" }
+      ]
+    }
+  ]
+}
