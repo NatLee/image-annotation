@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useCallback, useEffect } from 'react';
 import ImageCanvas from './ImageCanvas';
 import { useImageAnnotation } from '@/hooks/useImageAnnotation';
@@ -14,8 +12,7 @@ const ImageAnnotationSystem: React.FC = () => {
     updateBoundingBox,
     deleteBoundingBox,
     deleteLastBoundingBox,
-    submitAnnotation,
-    clearAnnotations
+    submitAnnotation
   } = useImageAnnotation();
 
   const [userName, setUserName] = useState('');

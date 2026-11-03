@@ -1,6 +1,5 @@
-'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { BoundingBox } from '@/types/annotation';
+import type { BoundingBox } from '@/types/annotation';
 import { resolveImagePath } from '@/utils/paths';
 
 interface ImageCanvasProps {
@@ -20,7 +19,7 @@ const ImageCanvas: React.FC<ImageCanvasProps> = ({
   image,
   imageMetadata,
   boundingBoxes,
-  onAddBoundingBox,
+  onAddBoundingBox: _onAddBoundingBox,
   onUpdateBoundingBox,
   onDeleteBoundingBox,
 }) => {
@@ -185,7 +184,7 @@ const ImageCanvas: React.FC<ImageCanvasProps> = ({
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseUp = () => {
     setInteractionState(null);
   };
 

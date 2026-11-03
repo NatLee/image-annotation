@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { BoundingBox, AnnotationSession } from '@/types/annotation';
+import type { BoundingBox, AnnotationSession } from '@/types/annotation';
 import { saveAnnotationToStorage } from '@/utils/storage';
-import { resolveImagePath, isExternalUrl } from '@/utils/paths';
+import { resolveImagePath } from '@/utils/paths';
 
 export const useImageAnnotation = () => {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
@@ -12,7 +12,6 @@ export const useImageAnnotation = () => {
     displaySize: { width: number; height: number };
     scaleFactor: number;
   } | null>(null);
-  const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
 
   // Calculate viewport like original - fits image within available space
   const calculateViewport = useCallback((imgElement: HTMLImageElement) => {
@@ -88,7 +87,7 @@ export const useImageAnnotation = () => {
 
   // Handle window resize like original - recalculate viewport and keep boxes in original coords
   useEffect(() => {
-    let resizeTimeout: NodeJS.Timeout;
+    let resizeTimeout: ReturnType<typeof setTimeout> | undefined;
     
     const handleResize = () => {
       // Debounce resize to prevent excessive calculations
