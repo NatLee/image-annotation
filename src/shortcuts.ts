@@ -60,7 +60,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   },
   {
     group: 'Boxes', id: 'nudgeLarge',
-    label: `… by ${BOX.nudgeLarge} px`,
+    label: `Move the selected box by ${BOX.nudgeLarge} px`,
     combos: Object.keys(ARROWS).map((k) => `shift+${k}`),
     keycaps: ['Shift', '←↑→↓'],
     run: (c, k) => {
