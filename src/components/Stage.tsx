@@ -369,7 +369,7 @@ function BoxShape({ box, view, color, selected }: { box: BoundingBox; view: View
   const small = r.width < 44 || r.height < 44;
   return (
     <g data-box-id={box.id} data-testid="box" data-selected={selected || undefined} style={{ cursor: 'move' }}>
-      <rect x={r.x} y={r.y} width={r.width} height={r.height} fill={color} fillOpacity={selected ? 0.2 : 0.1} stroke={color} strokeWidth={selected ? 2.5 : 1.75} />
+      <rect x={r.x} y={r.y} width={r.width} height={r.height} fill={color} fillOpacity={selected ? 0.14 : 0.08} stroke={color} strokeWidth={selected ? 2.5 : 1.75} />
       {selected && <rect x={r.x - 3} y={r.y - 3} width={r.width + 6} height={r.height + 6} fill="none" stroke={color} strokeOpacity={0.35} strokeWidth={1} />}
       <Chip x={Math.max(0, r.x - 1)} y={labelY} text={label} color={color} />
       {selected && <Chip x={r.x} y={r.y + r.height + 4} text={`x ${Math.round(box.x)}  y ${Math.round(box.y)}`} color={color} dark />}
