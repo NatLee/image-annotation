@@ -55,6 +55,15 @@ const HANDLES: { handle: ResizeHandle; fx: number; fy: number; cursor: string; e
 const HANDLE_PX = 9;
 const CHIP_FONT = '600 11px ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace';
 
+/** What a draw, move or resize gesture produces when the pointer is at `point`. */
+function previewFor(g: Exclude<Gesture, { kind: 'pan' }>, point: Point, view: View, size: Size): Preview {
+  if (g.kind === 'draw') return { kind: 'draw', rect: rectFromPoints(g.origin, toImagePoint(view, point), size) };
+  const dx = (point.x - g.start.x) / view.scale;
+  const dy = (point.y - g.start.y) / view.scale;
+  const rect = g.kind === 'move' ? moveBox(g.box, dx, dy, size) : resizeBox(g.box, g.handle, dx, dy, size);
+  return { kind: 'edit', id: g.box.id, rect };
+}
+
 let measureCtx: CanvasRenderingContext2D | null | undefined;
 function textWidth(text: string): number {
   if (measureCtx === undefined) measureCtx = document.createElement('canvas').getContext('2d');
@@ -209,31 +218,23 @@ export function Stage({ ref, item, boxes, selectedId, classes, showGrid, onSelec
 
     const g = gesture.current;
     if (!g) return;
-    const dx = (point.x - g.start.x) / view.scale;
-    const dy = (point.y - g.start.y) / view.scale;
-    if (g.kind === 'pan') {
-      setManualView({ ...g.view, x: g.view.x + point.x - g.start.x, y: g.view.y + point.y - g.start.y });
-    } else if (g.kind === 'draw') {
-      setPreview({ kind: 'draw', rect: rectFromPoints(g.origin, image, size) });
-    } else if (g.kind === 'move') {
-      setPreview({ kind: 'edit', id: g.box.id, rect: moveBox(g.box, dx, dy, size) });
-    } else {
-      setPreview({ kind: 'edit', id: g.box.id, rect: resizeBox(g.box, g.handle, dx, dy, size) });
-    }
+    if (g.kind === 'pan') setManualView({ ...g.view, x: g.view.x + point.x - g.start.x, y: g.view.y + point.y - g.start.y });
+    else setPreview(previewFor(g, point, view, size));
   };
 
   const finish = (e: React.PointerEvent<HTMLDivElement>, commit: boolean) => {
     const g = gesture.current;
     gesture.current = null;
     setActive(null);
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-    if (commit && g && preview) {
-      const point = local(e);
-      const dragged = Math.hypot(point.x - g.start.x, point.y - g.start.y) >= BOX.minDragScreenPx;
-      if (preview.kind === 'draw' && g.kind === 'draw' && dragged && preview.rect.width > 0 && preview.rect.height > 0) onDraw(preview.rect);
-      if (preview.kind === 'edit') onChange(preview.id, preview.rect);
-    }
     setPreview(null);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (!commit || !g || g.kind === 'pan' || !view || !size) return;
+    // Use the release position itself: the last rendered preview can lag one move behind.
+    const point = local(e);
+    const result = previewFor(g, point, view, size);
+    const dragged = Math.hypot(point.x - g.start.x, point.y - g.start.y) >= BOX.minDragScreenPx;
+    if (result.kind === 'draw' && dragged && result.rect.width > 0 && result.rect.height > 0) onDraw(result.rect);
+    if (result.kind === 'edit' && dragged) onChange(result.id, result.rect);
   };
 
   /* ------------------------------------------------------------- render */

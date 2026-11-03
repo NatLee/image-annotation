@@ -184,3 +184,29 @@ test('fetches a random online image with credit', async ({ page }) => {
   await expect(status(page)).toContainText('Art by Test Artist via nekos.best');
   await expect(page.getByTestId('box')).toHaveCount(1);
 });
+
+test('moves and resizes a box with the mouse', async ({ page }) => {
+  await start(page);
+  // The default box is 200×200 at (540, 300) on a 1280×800 image.
+  const image = (await page.locator('[data-testid="stage"] image').boundingBox())!;
+  const scale = image.width / 1280;
+  const at = (x: number, y: number) => ({ x: image.x + x * scale, y: image.y + y * scale });
+
+  const centre = at(640, 400);
+  await page.mouse.move(centre.x, centre.y);
+  await page.mouse.down();
+  await page.mouse.move(centre.x + 100 * scale, centre.y + 50 * scale, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.getByTestId('box-list')).toContainText('200×200 at 640, 350');
+
+  // Now selected: drag its bottom-right handle out by 60 image pixels.
+  const corner = at(840, 550);
+  await page.mouse.move(corner.x, corner.y);
+  await page.mouse.down();
+  await page.mouse.move(corner.x + 60 * scale, corner.y + 60 * scale, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.getByTestId('box-list')).toContainText('260×260 at 640, 350');
+
+  await page.keyboard.press('Control+z');
+  await expect(page.getByTestId('box-list')).toContainText('200×200 at 640, 350');
+});
