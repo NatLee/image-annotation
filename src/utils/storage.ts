@@ -1,4 +1,4 @@
-import { AnnotationSession, AnnotationData } from '@/types/annotation';
+import type { AnnotationSession, AnnotationData } from '@/types/annotation';
 
 export const saveAnnotationToStorage = (session: AnnotationSession) => {
   const data = getAnnotationFromStorage();

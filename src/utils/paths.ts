@@ -1,4 +1,5 @@
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+// Vite sets BASE_URL from the `base` option, always with a trailing slash.
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 export const getBasePath = () => basePath;
 
