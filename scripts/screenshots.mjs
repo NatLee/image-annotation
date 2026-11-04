@@ -20,12 +20,15 @@ const demo = JSON.parse(await readFile(new URL('../docs/demo-annotations.json', 
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || undefined });
 
-/** A page with a name already saved and the online source switched off. */
+/** A page with a name already saved and the online sources blocked: committed images show original art only. */
 async function openApp(viewport, records) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
   await page.addInitScript(() => localStorage.setItem('userName', 'nat'));
-  await page.route(/^https:\/\/nekos\.best\//, (r) => r.abort());
+  await page.route(/^https:\/\/(nekos\.best|danbooru\.donmai\.us|cdn\.donmai\.us)\//, (r) => r.abort());
   await page.goto(url);
+  // The blocked start-up fetch falls back to the samples; hide its error toast.
+  await page.addStyleTag({ content: '[role="alert"] { display: none !important; }' });
+  await page.getByTestId('box').first().waitFor();
   if (records) {
     const file = { ...demo, annotation_records: records };
     await page.getByTestId('import-input').setInputFiles({ name: 'demo.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) });
