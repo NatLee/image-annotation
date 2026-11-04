@@ -8,7 +8,7 @@ import { isCoco, readCoco, toCoco } from './coco';
 import type { ImportedImage } from './imported';
 import { toLegacyExport } from './legacy';
 import { readVoc, toVocFiles } from './voc';
-import { isClassNamesFile, isYoloLabelText, parseClassNames, readYoloLabels, toYoloFiles } from './yolo';
+import { type CsvImage, IMAGES_CSV, isClassNamesFile, isYoloLabelText, parseClassNames, readImagesCsv, readYoloLabels, toYoloFiles } from './yolo';
 
 /* ------------------------------------------------------------------------ */
 /* Export                                                                   */
@@ -145,6 +145,15 @@ export function importFiles(files: readonly InputFile[], ctx: ImportContext): Im
   const all = expandZips(files);
   const classFile = all.find((f) => isClassNamesFile(f.path) && parseClassNames(f.path, strFromU8(f.bytes)));
   const yoloNames = classFile ? parseClassNames(classFile.path, strFromU8(classFile.bytes))! : ctx.classNames;
+  // Our YOLO export lists each label's image (URL, size, credit) in images.csv.
+  const isImagesCsv = (path: string) => path.replace(/\\/g, '/').split('/').at(-1)?.toLowerCase() === IMAGES_CSV;
+  const csvFile = all.find((f) => isImagesCsv(f.path));
+  const csvImages = csvFile ? readImagesCsv(strFromU8(csvFile.bytes)) : new Map<string, CsvImage>();
+  const csvImageFor = (labelPath: string) => {
+    const path = labelPath.replace(/\\/g, '/');
+    for (const [label, image] of csvImages) if (path === label || path.endsWith(`/${label}`)) return image;
+    return undefined;
+  };
 
   for (const file of all) {
     const text = () => strFromU8(file.bytes);
@@ -187,12 +196,15 @@ export function importFiles(files: readonly InputFile[], ctx: ImportContext): Im
         result.ignored.push(file.path);
         continue;
       }
-      imported.push({
-        image: { reference: yoloReference(file.path), boxes: (size) => readYoloLabels(labels, size, yoloNames) },
-        yolo: true,
-      });
+      const boxes = (size: Size) => readYoloLabels(labels, size, yoloNames);
+      const listed = csvImageFor(file.path);
+      imported.push(
+        listed
+          ? { image: { reference: listed.imageUrl, size: listed.size, credit: listed.credit, boxes }, yolo: false }
+          : { image: { reference: yoloReference(file.path), boxes }, yolo: true },
+      );
       found.add('YOLO');
-    } else if (!isClassNamesFile(file.path)) {
+    } else if (!isClassNamesFile(file.path) && !isImagesCsv(file.path)) {
       result.ignored.push(file.path);
     }
   }
@@ -219,6 +231,7 @@ export function importFiles(files: readonly InputFile[], ctx: ImportContext): Im
       annotator: image.annotator || IMPORTED_ANNOTATOR,
       timestamp,
       bounding_boxes: boxes,
+      ...(image.credit && { credit: image.credit }),
     });
   }
 

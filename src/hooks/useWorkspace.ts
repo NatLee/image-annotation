@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { browserStore, clearRecords, loadClasses, loadRecords, saveClasses, saveRecords } from '@/lib/storage';
 import { SAMPLE_IMAGES } from '@/lib/sources';
-import { createWorkspace, nextPendingKey, reducer } from '@/lib/workspace';
+import { createWorkspace, reducer } from '@/lib/workspace';
 
 /**
  * The workspace reducer plus persistence: submitted records and classes are
- * written to the browser whenever they change. Everything starts with the
- * sample set, opened at the first image that still needs work.
+ * written to the browser whenever they change. The list starts with the
+ * bundled samples; nothing is open until the app has tried an online image.
  */
 export function useWorkspace(onSaveError: () => void) {
   const store = useMemo(() => browserStore(), []);
-  const [state, dispatch] = useReducer(reducer, null, () => {
-    const initial = createWorkspace({
+  const [state, dispatch] = useReducer(reducer, null, () =>
+    createWorkspace({
       images: [...SAMPLE_IMAGES],
       records: loadRecords(store, new Date().toISOString()),
       classes: loadClasses(store),
-    });
-    const first = nextPendingKey(initial);
-    return first ? reducer(initial, { type: 'image/open', key: first }) : initial;
-  });
+    }),
+  );
 
   const saved = useRef({ records: state.records, classes: state.classes });
 

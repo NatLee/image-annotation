@@ -1,9 +1,8 @@
-import { RANDOM_SOURCE } from '@/config';
 import { displaySize } from '@/lib/geometry';
 import type { ImageItem } from '@/types';
 import type { ViewInfo } from './Stage';
 
-/** v1's "Original | Display | Scale" line, plus the zoom and who drew the image. */
+/** v1's "Original | Display | Scale" line, plus the zoom. (Credit for online images sits on the canvas.) */
 export function StatusBar({ item, view }: { item: ImageItem | undefined; view: ViewInfo | undefined }) {
   const size = item?.size;
   const shown = size && view ? displaySize(size, view.fitScale) : undefined;
@@ -31,19 +30,6 @@ export function StatusBar({ item, view }: { item: ImageItem | undefined; view: V
             Zoom <span className={value}>{Math.round(view.scale * 100)}%</span>
           </span>
         </>
-      )}
-      {item?.credit && (
-        <span className={`${cell} ml-auto`}>
-          Art by{' '}
-          {item.credit.href ? (
-            <a href={item.credit.href} target="_blank" rel="noreferrer" className="text-ink-300 underline decoration-ink-600 underline-offset-2 hover:text-ink-100">
-              {item.credit.name}
-            </a>
-          ) : (
-            <span className="text-ink-300">{item.credit.name}</span>
-          )}{' '}
-          via {RANDOM_SOURCE.name}
-        </span>
       )}
     </footer>
   );

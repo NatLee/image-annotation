@@ -2,11 +2,28 @@ import { readFileSync } from 'node:fs';
 import { type Page, expect, test } from '@playwright/test';
 
 const SAMPLE_PNG = readFileSync('src/assets/samples/02-classroom.png');
-const RANDOM_API = 'https://nekos.best/api/v2/neko';
+const NEKOS_API = 'https://nekos.best/api/v2/neko';
+const DANBOORU_API = /^https:\/\/danbooru\.donmai\.us\/posts\.json/;
 
 test.beforeEach(async ({ page }) => {
-  // No real network: the random source is mocked where a test needs it.
-  await page.route(/^https:\/\/(nekos\.best|cdn\.waifu\.im)\//, (route) => route.abort());
+  // No real network: online sources are mocked where a test needs them. Unmocked,
+  // the start-up Danbooru request fails and the app falls back to the samples.
+  await page.route(/^https:\/\/(nekos\.best|cdn\.waifu\.im|danbooru\.donmai\.us|cdn\.donmai\.us)\//, (route) => route.abort());
+});
+
+/** A Danbooru post as posts.json returns it. */
+const post = (id: number, rating = 'g') => ({
+  id,
+  rating,
+  file_ext: 'png',
+  large_file_url: `https://cdn.donmai.us/sample/te/st/sample-${id}.jpg`,
+  file_url: `https://cdn.donmai.us/original/te/st/${id}.png`,
+  tag_string_artist: `artist_${id}`,
+  source: `https://www.pixiv.net/artworks/${id}`,
+  is_deleted: false,
+  is_banned: false,
+  is_flagged: false,
+  is_pending: false,
 });
 
 /** First visit: answer the name prompt and wait for the first sample with its default box. */
@@ -171,17 +188,63 @@ test('keyboard: classes, nudging, grid and zoom', async ({ page }) => {
   await expect(page.getByTestId('box')).toHaveCount(0);
 });
 
-test('fetches a random online image with credit', async ({ page }) => {
-  await page.route(RANDOM_API, (route) =>
+test('starts with a general-rated Danbooru picture, credits it and exports the credit', async ({ page }) => {
+  const apiCalls: string[] = [];
+  const imageCalls: string[] = [];
+  await page.route(DANBOORU_API, (route) => {
+    apiCalls.push(route.request().url());
+    // An explicit post in the reply must never be shown, even if the server sent one.
+    return route.fulfill({ json: [post(9, 'e'), post(3), post(2), post(1)] });
+  });
+  await page.route(/^https:\/\/cdn\.donmai\.us\//, (route) => {
+    imageCalls.push(route.request().url());
+    return route.fulfill({ body: SAMPLE_PNG, contentType: 'image/jpeg' });
+  });
+  await start(page);
+
+  await expect(status(page)).toContainText(/danbooru-\d\.jpg/);
+  const credit = page.getByTestId('credit');
+  await expect(credit).toContainText(/Art by artist_\d/);
+  await expect(credit.getByRole('link', { name: 'Danbooru post' })).toHaveAttribute('href', /^https:\/\/danbooru\.donmai\.us\/posts\/\d$/);
+  await expect(credit.getByRole('link', { name: 'original source' })).toHaveAttribute('href', /^https:\/\/www\.pixiv\.net\/artworks\/\d$/);
+
+  // Submitting an online picture moves on to another one, served from the same batch.
+  const first = await status(page).textContent();
+  await page.keyboard.press('Enter');
+  await expect(status(page)).not.toHaveText(first!);
+  await expect(status(page)).toContainText(/danbooru-\d\.jpg/);
+  expect(apiCalls).toHaveLength(1);
+  expect(new URL(apiCalls[0]).searchParams.get('tags')).toBe('rating:g');
+  expect(imageCalls.some((url) => /[-/]9\.(jpg|png)$/.test(url))).toBe(false);
+
+  await page.getByRole('button', { name: 'Export annotations' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Export annotations' });
+  const [download] = await Promise.all([page.waitForEvent('download'), dialog.getByTestId('export-confirm').click()]);
+  const record = JSON.parse(readFileSync(await download.path(), 'utf8')).annotation_records[0];
+  expect(record.image_url).toMatch(/^https:\/\/cdn\.donmai\.us\/sample\//);
+  expect(record.credit).toMatchObject({ provider: 'Danbooru', artist: expect.stringMatching(/^artist_\d$/), post_url: expect.stringMatching(/posts\/\d$/) });
+});
+
+test('falls back to the built-in illustrations when Danbooru is rate-limiting', async ({ page }) => {
+  await page.route(DANBOORU_API, (route) => route.fulfill({ status: 429, json: { success: false } }));
+  await start(page);
+  await expect(page.getByRole('alert')).toContainText('limiting requests');
+  await expect(status(page)).toContainText('01-picnic.png');
+});
+
+test('can switch random pictures to nekos.best', async ({ page }) => {
+  await page.route(NEKOS_API, (route) =>
     route.fulfill({
       json: { results: [{ url: 'https://nekos.best/api/v2/neko/test.png', artist_name: 'Test Artist', source_url: 'https://example.com/post' }] },
     }),
   );
   await page.route('https://nekos.best/api/v2/neko/test.png', (route) => route.fulfill({ body: SAMPLE_PNG, contentType: 'image/png' }));
   await start(page);
+  await page.getByLabel('Source of random pictures').selectOption('nekos');
+  await page.getByTestId('stage').focus();
   await page.keyboard.press('r');
   await expect(status(page)).toContainText('test.png');
-  await expect(status(page)).toContainText('Art by Test Artist via nekos.best');
+  await expect(page.getByTestId('credit')).toContainText('Art by Test Artist · via nekos.best · original source');
   await expect(page.getByTestId('box')).toHaveCount(1);
 });
 

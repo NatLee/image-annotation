@@ -170,6 +170,18 @@ describe('submitting (v1 rules)', () => {
     });
   });
 
+  it('carries the credit of an online image into the record', () => {
+    const credit = { provider: 'Danbooru', artist: 'someone', post_url: 'https://danbooru.donmai.us/posts/1' };
+    const key = 'https://cdn.donmai.us/sample/x.jpg';
+    const s = run(
+      createWorkspace({ records: emptyData(NOW), classes: DEFAULT_CLASSES }),
+      { type: 'images/add', items: [{ ...item(key), source: 'online', credit }], open: true },
+      { type: 'image/loaded', key, size, boxId: 'd' },
+    );
+    expect(buildRecord(s, meta)?.credit).toEqual(credit);
+    expect(buildRecord(loaded(), meta)).not.toHaveProperty('credit');
+  });
+
   it('refuses to submit an image without boxes', () => {
     expect(buildRecord(run(loaded(), { type: 'box/delete' }), meta)).toBeUndefined();
   });

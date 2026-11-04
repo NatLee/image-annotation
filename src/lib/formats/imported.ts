@@ -1,4 +1,4 @@
-import type { BoundingBox, Size } from '@/types';
+import type { BoundingBox, ImageCredit, Size } from '@/types';
 
 /**
  * What every import reader returns for one image, before the app matches it to
@@ -13,4 +13,5 @@ export interface ImportedImage {
   boxes: (size: Size) => BoundingBox[];
   annotator?: string;
   timestamp?: string;
+  credit?: ImageCredit;
 }

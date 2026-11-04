@@ -1,6 +1,6 @@
 import { CircleAlert, CircleCheck, FolderOpen, ImagePlus, Shuffle, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { RANDOM_SOURCE } from '@/config';
+import type { OnlineSourceId } from '@/config';
 import { hint } from '@/shortcuts';
 import type { ImageItem, ImageSource } from '@/types';
 import { IconButton } from './ui';
@@ -14,6 +14,9 @@ interface ImageListProps {
   statusOf: (item: ImageItem) => ImageStatus;
   boxCountOf: (item: ImageItem) => number;
   busy: boolean;
+  onlineSource: OnlineSourceId;
+  onlineSources: { id: OnlineSourceId; name: string }[];
+  onOnlineSource: (id: OnlineSourceId) => void;
   onOpen: (key: string) => void;
   onRemove: (key: string) => void;
   onOpenFiles: () => void;
@@ -44,7 +47,9 @@ function StatusIcon({ status }: { status: ImageStatus }) {
   );
 }
 
-export function ImageList({ images, currentKey, statusOf, boxCountOf, busy, onOpen, onRemove, onOpenFiles, onOpenFolder, onRandom }: ImageListProps) {
+export function ImageList(props: ImageListProps) {
+  const { images, currentKey, statusOf, boxCountOf, busy, onlineSource, onlineSources, onOnlineSource, onOpen, onRemove, onOpenFiles, onOpenFolder, onRandom } = props;
+  const sourceName = onlineSources.find((s) => s.id === onlineSource)?.name ?? onlineSource;
   const [filter, setFilter] = useState<Filter>('all');
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -65,7 +70,7 @@ export function ImageList({ images, currentKey, statusOf, boxCountOf, busy, onOp
           <div className="-mr-2 flex">
             <IconButton icon={ImagePlus} label="Open image files" hint={hint('openFiles')} onClick={onOpenFiles} />
             <IconButton icon={FolderOpen} label="Open a folder" onClick={onOpenFolder} />
-            <IconButton icon={Shuffle} label={`Random image from ${RANDOM_SOURCE.name}`} hint={hint('random')} onClick={onRandom} disabled={busy} tipSide="left" />
+            <IconButton icon={Shuffle} label={`Random picture from ${sourceName}`} hint={hint('random')} onClick={onRandom} disabled={busy} tipSide="left" />
           </div>
         </div>
         <div>
@@ -79,6 +84,21 @@ export function ImageList({ images, currentKey, statusOf, boxCountOf, busy, onOp
             <div className="h-full rounded-full bg-accent transition-[width] duration-500" style={{ width: `${percent}%` }} />
           </div>
         </div>
+        <label className="flex items-center justify-between gap-2 text-xs text-ink-400">
+          Random pictures from
+          <select
+            value={onlineSource}
+            onChange={(e) => onOnlineSource(e.target.value as OnlineSourceId)}
+            aria-label="Source of random pictures"
+            className="rounded-md border border-ink-700 bg-ink-850 px-2 py-1 text-ink-100 focus:border-ink-500 focus:outline-none"
+          >
+            {onlineSources.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="grid grid-cols-3 rounded-lg bg-ink-850 p-0.5 text-xs" role="tablist" aria-label="Filter images">
           {(['all', 'todo', 'done'] as const).map((f) => (
             <button
@@ -119,7 +139,7 @@ export function ImageList({ images, currentKey, statusOf, boxCountOf, busy, onOp
                     {item.name}
                   </span>
                   <span className="block truncate text-[11px] text-ink-500">
-                    {SOURCE_LABEL[item.source]} · {count ? `${count} box${count > 1 ? 'es' : ''}` : 'no boxes'}
+                    {item.credit?.provider ?? SOURCE_LABEL[item.source]} · {count ? `${count} box${count > 1 ? 'es' : ''}` : 'no boxes'}
                   </span>
                 </span>
                 <StatusIcon status={status} />

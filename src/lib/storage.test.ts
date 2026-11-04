@@ -3,7 +3,7 @@ import { STORAGE_KEYS } from '@/config';
 import v1Export from './__fixtures__/v1-export.json';
 import { DEFAULT_CLASSES } from './classes';
 import { readRecordList, upsertRecords, emptyData } from './records';
-import { clearRecords, type KeyValueStore, loadClasses, loadRecords, loadUserName, saveClasses, saveRecords } from './storage';
+import { clearRecords, type KeyValueStore, loadClasses, loadOnlineSource, loadRecords, loadUserName, saveClasses, saveOnlineSource, saveRecords } from './storage';
 import { leaderboard } from './stats';
 
 const NOW = '2026-11-04T00:00:00.000Z';
@@ -64,6 +64,14 @@ describe('browser storage', () => {
     expect(loadRecords(store, NOW)).toEqual(data);
     saveClasses(store, [{ name: 'cat', color: '#123456' }]);
     expect(loadClasses(store)).toEqual([{ name: 'cat', color: '#123456' }]);
+  });
+
+  it('remembers the online source, defaulting to Danbooru', () => {
+    const store = memoryStore({ [STORAGE_KEYS.onlineSource]: 'something-else' });
+    expect(loadOnlineSource(store)).toBe('danbooru');
+    saveOnlineSource(store, 'nekos');
+    expect(loadOnlineSource(store)).toBe('nekos');
+    expect(loadOnlineSource(undefined)).toBe('danbooru');
   });
 
   it('"Clear all data" removes the key like v1 did', () => {

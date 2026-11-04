@@ -1,6 +1,6 @@
-import { FolderOpen, ImagePlus, Shuffle, Upload } from 'lucide-react';
+import { FolderOpen, ImagePlus, LoaderCircle, Shuffle, Upload } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_ANNOTATOR, RANDOM_SOURCE } from '@/config';
+import { DEFAULT_ANNOTATOR, type OnlineSourceId } from '@/config';
 import { ConfirmDialog, type ConfirmRequest, ExportDialog, HelpDialog, LeaderboardDialog, NameDialog } from '@/components/dialogs';
 import { ImageList, type ImageStatus } from '@/components/ImageList';
 import { Inspector } from '@/components/Inspector';
@@ -19,9 +19,10 @@ import { displaySize } from '@/lib/geometry';
 import { newBoxId, newSessionId } from '@/lib/ids';
 import { isImageFile } from '@/lib/paths';
 import { findRecord, upsertRecords } from '@/lib/records';
-import { fetchRandomImage, localItems, onlineItems, type PickedFile } from '@/lib/sources';
+import { createOnlineSources, OnlineSourceError } from '@/lib/online';
+import { localItems, onlineItems, type PickedFile } from '@/lib/sources';
 import { leaderboard } from '@/lib/stats';
-import { loadUserName, saveUserName } from '@/lib/storage';
+import { loadOnlineSource, loadUserName, saveOnlineSource, saveUserName } from '@/lib/storage';
 import {
   buildRecord,
   canRedoCurrent,
@@ -58,6 +59,9 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [drawer, setDrawer] = useState<Drawer | null>(null);
   const [dropping, setDropping] = useState(false);
+  const [onlineSource, setOnlineSource] = useState<OnlineSourceId>(() => loadOnlineSource(store));
+  // One set per page load: Danbooru keeps its batch of posts here for the session.
+  const [sources] = useState(createOnlineSources);
 
   const stageRef = useRef<StageHandle>(null);
   const filesInput = useRef<HTMLInputElement>(null);
@@ -68,9 +72,9 @@ export default function App() {
   const boxes = currentBoxes(state);
 
   // Async handlers and window listeners read the newest values from here.
-  const latest = useRef({ state, view, userName, busy: false });
+  const latest = useRef({ state, view, userName, onlineSource, busy: false });
   useLayoutEffect(() => {
-    latest.current = { ...latest.current, state, view, userName };
+    latest.current = { ...latest.current, state, view, userName, onlineSource };
   });
 
   const onViewChange = useCallback((info: ViewInfo) => setView(info), []);
@@ -101,33 +105,52 @@ export default function App() {
 
   /* -------------------------------------------------------- image sources */
 
-  const random = useCallback(async () => {
-    if (latest.current.busy) return;
-    latest.current.busy = true;
-    setBusy(true);
-    try {
-      const image = await fetchRandomImage();
-      dispatch({ type: 'images/add', items: [image], open: true });
-    } catch (error) {
-      notify('error', `Could not get an image from ${RANDOM_SOURCE.name}`, error instanceof Error ? error.message : undefined);
-    } finally {
-      latest.current.busy = false;
-      setBusy(false);
-    }
-  }, [dispatch, notify]);
+  /**
+   * One online image from the chosen source. When that fails, say why; with
+   * `fallback`, open the bundled illustrations instead (they work offline).
+   */
+  const random = useCallback(
+    async ({ fallback = false } = {}) => {
+      if (latest.current.busy) return;
+      latest.current.busy = true;
+      setBusy(true);
+      const source = sources[latest.current.onlineSource];
+      try {
+        const image = await source.next();
+        dispatch({ type: 'images/add', items: [image], open: true });
+      } catch (error) {
+        const reason = error instanceof OnlineSourceError ? error.message : `Could not reach ${source.name}.`;
+        notify('error', `No picture from ${source.name}`, `${reason} The built-in illustrations work offline.`);
+        const { state: s } = latest.current;
+        const sample = nextPendingKey(s) ?? s.images[0]?.key;
+        if (fallback && !s.currentKey && sample) dispatch({ type: 'image/open', key: sample });
+      } finally {
+        latest.current.busy = false;
+        setBusy(false);
+      }
+    },
+    [dispatch, notify, sources],
+  );
 
-  // v1 opened a random image at start. Now the samples come first; when they are all done, go online.
+  // Like v1, start with a random online image; the samples are the offline fallback.
   const started = useRef(false);
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    if (!latest.current.state.currentKey) void random();
+    void random({ fallback: true });
   }, [random]);
 
+  /** Online images continue with another online image (as in v1); files and samples go down the list. */
   const goNext = () => {
-    const key = nextPendingKey(latest.current.state);
+    const { state: s } = latest.current;
+    const key = currentItem(s)?.source === 'online' ? undefined : nextPendingKey(s);
     if (key) dispatch({ type: 'image/open', key });
     else void random();
+  };
+
+  const changeOnlineSource = (id: OnlineSourceId) => {
+    setOnlineSource(id);
+    saveOnlineSource(store, id);
   };
 
   const importAnnotations = async (files: PickedFile[], addedImages: ImageItem[]) => {
@@ -161,7 +184,7 @@ export default function App() {
       return;
     }
     dispatch({ type: 'records/import', records: result.records, now: now.toISOString() });
-    const online = onlineItems(result.records.map((r) => r.image_url), new Set(images.map((i) => i.key)));
+    const online = onlineItems(result.records, new Set(images.map((i) => i.key)));
     if (online.length) dispatch({ type: 'images/add', items: online });
     const boxCount = result.records.reduce((n, r) => n + r.bounding_boxes.length, 0);
     notify('success', `Imported ${plural(result.records.length, 'image')} · ${plural(boxCount, 'box')}`, [result.formats.join(', '), ...notes].join(' · '));
@@ -398,6 +421,9 @@ export default function App() {
             statusOf={statusOf}
             boxCountOf={boxCountOf}
             busy={busy}
+            onlineSource={onlineSource}
+            onlineSources={Object.values(sources).map(({ id, name }) => ({ id, name }))}
+            onOnlineSource={changeOnlineSource}
             onOpen={(key) => {
               dispatch({ type: 'image/open', key });
               setDrawer(null);
@@ -442,7 +468,7 @@ export default function App() {
                 />
               </Stage>
             ) : (
-              <EmptyStage busy={busy} onFiles={() => filesInput.current?.click()} onFolder={() => folderInput.current?.click()} onRandom={() => void random()} onImport={() => importInput.current?.click()} />
+              <EmptyStage busy={busy} sourceName={sources[onlineSource].name} onFiles={() => filesInput.current?.click()} onFolder={() => folderInput.current?.click()} onRandom={() => void random()} onImport={() => importInput.current?.click()} />
             )}
           </div>
           <StatusBar item={item} view={ready ? view : undefined} />
@@ -508,7 +534,30 @@ export default function App() {
   }
 }
 
-function EmptyStage({ busy, onFiles, onFolder, onRandom, onImport }: { busy: boolean; onFiles: () => void; onFolder: () => void; onRandom: () => void; onImport: () => void }) {
+function EmptyStage({
+  busy,
+  sourceName,
+  onFiles,
+  onFolder,
+  onRandom,
+  onImport,
+}: {
+  busy: boolean;
+  sourceName: string;
+  onFiles: () => void;
+  onFolder: () => void;
+  onRandom: () => void;
+  onImport: () => void;
+}) {
+  if (busy) {
+    return (
+      <div className="stage-bg grid h-full place-items-center p-6 text-sm text-ink-400" data-testid="fetching">
+        <div className="flex items-center gap-3">
+          <LoaderCircle className="animate-spin" size={20} aria-hidden /> Fetching a picture from {sourceName}…
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="stage-bg grid h-full place-items-center p-6">
       <div className="max-w-md rounded-2xl border border-ink-800 bg-ink-900/90 p-8 text-center shadow-2xl shadow-black/40">
@@ -521,8 +570,8 @@ function EmptyStage({ busy, onFiles, onFolder, onRandom, onImport }: { busy: boo
           <Button icon={FolderOpen} onClick={onFolder}>
             Open folder
           </Button>
-          <Button icon={Shuffle} onClick={onRandom} disabled={busy}>
-            Random image
+          <Button icon={Shuffle} onClick={onRandom}>
+            From {sourceName}
           </Button>
           <Button icon={Upload} onClick={onImport}>
             Import annotations

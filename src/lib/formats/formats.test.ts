@@ -30,13 +30,19 @@ const records: AnnotationSession[] = [
   },
   {
     session_id: 'session_2',
-    image_url: 'https://nekos.best/api/v2/neko/abc-123.png',
+    image_url: 'https://cdn.donmai.us/sample/ab/c1/sample-abc123.jpg',
     original_size: { width: 1463, height: 2048 },
     display_size: { width: 571, height: 800 },
     scale_factor: 0.39,
     annotator: 'anonymous',
     timestamp: '2026-11-04T08:05:00.000Z',
     bounding_boxes: [{ id: 'c', x: 400, y: 300, width: 600, height: 640, label: 'anime_face' }],
+    credit: {
+      provider: 'Danbooru',
+      artist: 'artist_one, "quoted"',
+      post_url: 'https://danbooru.donmai.us/posts/123',
+      source_url: 'https://www.pixiv.net/artworks/123',
+    },
   },
 ];
 const data = summarize(records, NOW.toISOString());
@@ -55,7 +61,7 @@ const unzip = (bytes: Uint8Array) =>
 
 /** Boxes without the ids, which are regenerated on import. */
 const shape = (list: AnnotationSession[]) =>
-  list.map((r) => ({ image_url: r.image_url, size: r.original_size, boxes: r.bounding_boxes.map(({ id: _id, ...rest }) => rest) }));
+  list.map((r) => ({ image_url: r.image_url, size: r.original_size, credit: r.credit, boxes: r.bounding_boxes.map(({ id: _id, ...rest }) => rest) }));
 
 describe('JSON (v1 format)', () => {
   it('exports exactly the v1 fields', () => {
@@ -93,7 +99,8 @@ describe('COCO', () => {
       { id: 2, name: 'cat', supercategory: '' },
     ]);
     expect(coco.images[0]).toMatchObject({ id: 1, file_name: 'samples/scene-01.png', width: 1280, height: 800 });
-    expect(coco.images[1]).toMatchObject({ file_name: 'abc-123.png', coco_url: records[1].image_url });
+    expect(coco.images[1]).toMatchObject({ file_name: 'sample-abc123.jpg', coco_url: records[1].image_url, credit: records[1].credit });
+    expect(coco.images[0]).not.toHaveProperty('credit');
     expect(coco.annotations[1]).toEqual({
       id: 2,
       image_id: 1,
@@ -117,11 +124,24 @@ describe('COCO', () => {
 describe('YOLO', () => {
   it('writes normalised labels, classes.txt and data.yaml', () => {
     const files = unzip(buildExport('yolo', data, classes, NOW).bytes);
-    expect(Object.keys(files).sort()).toEqual(['classes.txt', 'data.yaml', 'labels/abc-123.txt', 'labels/samples/scene-01.txt']);
+    expect(Object.keys(files).sort()).toEqual(['classes.txt', 'data.yaml', 'images.csv', 'labels/sample-abc123.txt', 'labels/samples/scene-01.txt']);
     expect(files['classes.txt']).toBe('anime_face\ncat\n');
     // box a: centre (200, 210) of 1280 x 800, size 200 x 180
     expect(files['labels/samples/scene-01.txt'].split('\n')[0]).toBe('0 0.15625 0.2625 0.15625 0.225');
     expect(parseYamlNames(files['data.yaml'])).toEqual(['anime_face', 'cat']);
+    expect(files['images.csv'].split('\n')).toEqual([
+      'label_file,image_url,width,height,provider,artist,post_url,source_url',
+      'labels/samples/scene-01.txt,samples/scene-01.png,1280,800,,,,',
+      'labels/sample-abc123.txt,https://cdn.donmai.us/sample/ab/c1/sample-abc123.jpg,1463,2048,Danbooru,"artist_one, ""quoted""",https://danbooru.donmai.us/posts/123,https://www.pixiv.net/artworks/123',
+      '',
+    ]);
+  });
+
+  it('restores online images from images.csv even when they are not in the list', () => {
+    const out = buildExport('yolo', data, classes, NOW);
+    const result = importFiles([{ path: out.fileName, bytes: out.bytes }], context({ images: [] }));
+    expect(result.unmatched).toEqual([]);
+    expect(shape(result.records)).toEqual(shape(records));
   });
 
   it('round-trips when the images are open', () => {
@@ -169,6 +189,10 @@ describe('Pascal VOC', () => {
     expect(xml).toContain('<folder>samples</folder>');
     expect(xml).toContain('<xmin>640</xmin>');
     expect(xml).toContain('<xmax>960</xmax>');
+    const online = files['Annotations/sample-abc123.xml'];
+    expect(online).toContain('<provider>Danbooru</provider>');
+    expect(online).toContain('<post_url>https://danbooru.donmai.us/posts/123</post_url>');
+    expect(online).toContain('<name>artist_one, &quot;quoted&quot;</name>');
   });
 
   it('round-trips', () => {
@@ -192,6 +216,20 @@ describe('Pascal VOC', () => {
     const out = buildExport('voc', odd, classes, NOW);
     const result = importFiles([{ path: out.fileName, bytes: out.bytes }], context());
     expect(result.records[0].bounding_boxes[0].label).toBe('a<b & "c"');
+  });
+});
+
+describe('credit for online images', () => {
+  it('stays in the JSON export only where there is one', () => {
+    const json = JSON.parse(strFromU8(buildExport('json', data, classes, NOW).bytes));
+    expect(json.annotation_records[0]).not.toHaveProperty('credit');
+    expect(json.annotation_records[1].credit).toEqual(records[1].credit);
+  });
+
+  it('drops credit links that are not web links', () => {
+    const bad = { ...records[1], credit: { provider: 'Danbooru', post_url: 'javascript:alert(1)', source_url: 'https://ok.example/1' } };
+    const result = importFiles([file('x.json', JSON.stringify([bad]))], context());
+    expect(result.records[0].credit).toEqual({ provider: 'Danbooru', source_url: 'https://ok.example/1' });
   });
 });
 

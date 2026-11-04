@@ -1,5 +1,6 @@
-import { STORAGE_KEYS } from '@/config';
+import { DEFAULT_ONLINE_SOURCE, type OnlineSourceId, STORAGE_KEYS } from '@/config';
 import { normalizeClasses } from '@/lib/classes';
+import { isOnlineSourceId } from '@/lib/online';
 import { emptyData, readRecordList, summarize } from '@/lib/records';
 import type { AnnotationData, LabelClass } from '@/types';
 
@@ -65,3 +66,14 @@ export function loadUserName(store: KeyValueStore | undefined): string {
 
 export const saveUserName = (store: KeyValueStore | undefined, name: string) =>
   write(store, STORAGE_KEYS.userName, name);
+
+export function loadOnlineSource(store: KeyValueStore | undefined): OnlineSourceId {
+  try {
+    const value = store?.getItem(STORAGE_KEYS.onlineSource);
+    return isOnlineSourceId(value) ? value : DEFAULT_ONLINE_SOURCE;
+  } catch {
+    return DEFAULT_ONLINE_SOURCE;
+  }
+}
+
+export const saveOnlineSource = (store: KeyValueStore | undefined, id: OnlineSourceId) => write(store, STORAGE_KEYS.onlineSource, id);

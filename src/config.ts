@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
   /** v1 key: the annotator's name. */
   userName: 'userName',
   classes: 'image-annotation:classes',
+  onlineSource: 'image-annotation:online-source',
 } as const;
 
 /** v1 label for every box; also the first class of a fresh install. */
@@ -65,12 +66,39 @@ export const PALETTE = [
   '#8b5cf6',
 ] as const;
 
-/** Online source of random SFW anime images (v1 used waifu.im, which is gone). */
-export const RANDOM_SOURCE = {
+/**
+ * Online sources of random anime images (v1 used waifu.im, which is gone).
+ * Danbooru is the default. Only general-audience posts are ever requested.
+ */
+export const DANBOORU = {
+  name: 'Danbooru',
+  homepage: 'https://danbooru.donmai.us',
+  endpoint: 'https://danbooru.donmai.us/posts.json',
+  postUrl: 'https://danbooru.donmai.us/posts/',
+  /** General-audience posts only (`rating:g`); responses are filtered on `rating` again. */
+  tags: 'rating:g',
+  rating: 'g',
+  /** Posts per request. The rest wait in memory, so most images cost no API call. */
+  batchSize: 20,
+  /**
+   * Random batches are taken "before a random post id" (`page=b<id>`), between this id
+   * and the newest one seen. Older posts are smaller and more often deleted.
+   */
+  oldestPostId: 1_000_000,
+  imageExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+} as const;
+
+export const NEKOS_BEST = {
   name: 'nekos.best',
   homepage: 'https://nekos.best',
   endpoint: 'https://nekos.best/api/v2/neko',
 } as const;
+
+export type OnlineSourceId = 'danbooru' | 'nekos';
+export const DEFAULT_ONLINE_SOURCE: OnlineSourceId = 'danbooru';
+
+/** Give up on an online source after this long (milliseconds). */
+export const ONLINE_TIMEOUT_MS = 10_000;
 
 export const REPO_URL = 'https://github.com/NatLee/image-annotation';
 
