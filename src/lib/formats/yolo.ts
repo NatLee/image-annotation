@@ -1,6 +1,7 @@
 import { newBoxId } from '@/lib/ids';
 import { annotationPaths } from '@/lib/paths';
-import type { AnnotationSession, BoundingBox, LabelClass, Size } from '@/types';
+import { readCredit } from '@/lib/records';
+import type { AnnotationSession, BoundingBox, ImageCredit, LabelClass, Size } from '@/types';
 import { categoriesFor } from './coco';
 
 /**
@@ -25,6 +26,9 @@ export function toYoloFiles(records: readonly AnnotationSession[], classes: read
       '',
     ].join('\n'),
   };
+  // Labels alone don't say where the images are: list each image's URL, size and credit.
+  files[IMAGES_CSV] = toImagesCsv(records, paths);
+
   for (const record of records) {
     const { width: W, height: H } = record.original_size;
     files[paths.get(record.image_url)!] = record.bounding_boxes
@@ -114,4 +118,88 @@ export function readYoloLabels(text: string, size: Size, names: readonly string[
     });
   }
   return boxes;
+}
+
+/* ------------------------------------------------------------------------ */
+/* images.csv: which image (URL, size, credit) each label file belongs to   */
+/* ------------------------------------------------------------------------ */
+
+export const IMAGES_CSV = 'images.csv';
+const CSV_COLUMNS = ['label_file', 'image_url', 'width', 'height', 'provider', 'artist', 'post_url', 'source_url'] as const;
+
+const csvCell = (value: string | number | undefined) => {
+  const s = String(value ?? '');
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+export function toImagesCsv(records: readonly AnnotationSession[], labelPaths: ReadonlyMap<string, string>): string {
+  const rows = records.map((r) => [
+    labelPaths.get(r.image_url),
+    r.image_url,
+    r.original_size.width,
+    r.original_size.height,
+    r.credit?.provider,
+    r.credit?.artist,
+    r.credit?.post_url,
+    r.credit?.source_url,
+  ]);
+  return [CSV_COLUMNS, ...rows].map((row) => row.map(csvCell).join(',')).join('\n') + '\n';
+}
+
+/** Splits CSV text into rows, honouring quoted cells. */
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') {
+        cell += '"';
+        i++;
+      } else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') {
+      row.push(cell);
+      cell = '';
+    } else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) rows.push([...row, cell]);
+  return rows;
+}
+
+export interface CsvImage {
+  imageUrl: string;
+  size?: Size;
+  credit?: ImageCredit;
+}
+
+/** `images.csv` → label file path → image. Unknown columns are ignored. */
+export function readImagesCsv(text: string): Map<string, CsvImage> {
+  const [header, ...rows] = parseCsv(text);
+  const col = (name: (typeof CSV_COLUMNS)[number]) => header?.indexOf(name) ?? -1;
+  const result = new Map<string, CsvImage>();
+  for (const row of rows) {
+    const get = (name: (typeof CSV_COLUMNS)[number]) => (col(name) >= 0 ? row[col(name)]?.trim() : undefined) || undefined;
+    const label = get('label_file');
+    const imageUrl = get('image_url');
+    if (!label || !imageUrl) continue;
+    const width = Number(get('width'));
+    const height = Number(get('height'));
+    const credit = readCredit({ provider: get('provider'), artist: get('artist'), post_url: get('post_url'), source_url: get('source_url') });
+    result.set(label.replace(/\\/g, '/'), {
+      imageUrl,
+      ...(width > 0 && height > 0 && { size: { width, height } }),
+      ...(credit && { credit }),
+    });
+  }
+  return result;
 }

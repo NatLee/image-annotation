@@ -10,7 +10,7 @@
 ![React 19](https://img.shields.io/badge/React-19-149eca)
 ![Vite 8](https://img.shields.io/badge/Vite-8-646cff)
 
-A keyboard-first bounding-box annotator that runs entirely in your browser. Open a folder of images (or start with the built-in samples), drag boxes around what matters, sort them into colour-coded classes, and export everything as COCO, YOLO, Pascal VOC or the app's own JSON. It began as a little crowd-sourcing tool for boxing anime faces, and it still does that, but it now handles any small labelling job. Nothing is uploaded: your work stays in the browser until you export it.
+A keyboard-first bounding-box annotator that runs entirely in your browser. Start with random anime pictures from Danbooru, open a folder of your own images, or use the built-in illustrations offline; drag boxes around what matters, sort them into colour-coded classes, and export everything as COCO, YOLO, Pascal VOC or the app's own JSON. It began as a little crowd-sourcing tool for boxing anime faces, and it still does that, but it now handles any small labelling job. Nothing is uploaded: your work stays in the browser until you export it.
 
 **[Open the app →](https://natlee.github.io/image-annotation/)**
 
@@ -24,7 +24,8 @@ A keyboard-first bounding-box annotator that runs entirely in your browser. Open
 - **Undo and redo** every edit, separately for each image.
 - **Work through a list**: thumbnails, status and a progress bar. Open files, a whole folder, or drop them anywhere on the page.
 - **Import and export** JSON, COCO, YOLO and Pascal VOC.
-- From the original app: the leaderboard, the 10 × 10 grid on <kbd>D</kbd>, a default box on every new image, and random anime pictures (now from [nekos.best](https://nekos.best), press <kbd>R</kbd>).
+- **Random anime pictures** from [Danbooru](https://danbooru.donmai.us) (general-audience `rating:g` posts only) or [nekos.best](https://nekos.best), press <kbd>R</kbd>. Each one is credited on the canvas: artist, a link to the post and the original source.
+- From the original app: the leaderboard, the 10 × 10 grid on <kbd>D</kbd>, and a default box on every new image.
 
 ![Drawing three boxes, zooming in, and submitting with Enter](docs/images/workflow.gif)
 
@@ -50,9 +51,9 @@ BASE_PATH=image-annotation npm run build   # assets load from /image-annotation/
 ## Annotating, step by step
 
 1. Type your name in the top bar. It is stored with every image you submit and shows up on the leaderboard.
-2. Pick images. Six sample illustrations are loaded already. Add your own with the buttons above the list, or drop files or folders on the page.
+2. Pick images. The app opens a random Danbooru picture to start with; six original illustrations sit in the list too and take over when you are offline. Add your own with the buttons above the list, or drop files or folders on the page. The menu above the list switches random pictures between Danbooru and nekos.best.
 3. Drag on the image to draw a box. Every new image starts with one default box (a square of 25% of the short side, in the middle), like the original app: adjust it or press <kbd>Del</kbd>.
-4. Press <kbd>Enter</kbd> to submit. The app jumps to the next image that still needs work, and fetches a random one when the list is done.
+4. Press <kbd>Enter</kbd> to submit. After an online picture you get another one; after your own files or the samples, the next image in the list that still needs work.
 5. Export when you are finished. Submitted work survives a page reload; unsubmitted boxes are kept while the tab is open, and the browser warns you before you close it.
 
 The house rule, kept from the original app: **框頭，整顆頭！** Box the head, the whole head.
@@ -97,10 +98,12 @@ On a Mac, <kbd>⌘</kbd> works wherever the table says <kbd>Ctrl</kbd>.
 | --- | --- | --- |
 | JSON | `all_annotations_<date>.json`, the same format as the original app | That file, the app's storage data, or a plain array of records |
 | COCO | `coco_annotations_<date>.json` with `images`, `annotations` and `categories` (ids from 1, in class order) | Any COCO detection file |
-| YOLO | `yolo_labels_<date>.zip` with `labels/*.txt` (`class cx cy w h`, 0–1), `classes.txt` and `data.yaml` | `.txt` labels, loose, zipped or in a dataset folder, with `classes.txt`, `*.names` or `data.yaml`; segmentation polygons become boxes |
+| YOLO | `yolo_labels_<date>.zip` with `labels/*.txt` (`class cx cy w h`, 0–1), `classes.txt`, `data.yaml` and `images.csv` (each label's image URL, size and credit) | `.txt` labels, loose, zipped or in a dataset folder, with `classes.txt`, `*.names` or `data.yaml`; segmentation polygons become boxes |
 | Pascal VOC | `voc_annotations_<date>.zip` with one `Annotations/*.xml` per image | `.xml` files or a zip of them |
 
-Import with the upload button in the top bar, or drop the files on the page. Imported files are matched to the images in your list by path, then by the end of the path (so a LabelImg file that says `C:\data\cats\a.jpg` finds `cats/a.jpg`), then by a unique file name. YOLO stores positions as fractions of the image size, so its images must be in the list; dropping a dataset folder with `images/` and `labels/` together does that in one go.
+Online pictures keep their credit in every format: a `credit` object in JSON and in COCO's `images`, `<source>` and `<owner>` in VOC, and the extra columns of YOLO's `images.csv`.
+
+Import with the upload button in the top bar, or drop the files on the page. Imported files are matched to the images in your list by path, then by the end of the path (so a LabelImg file that says `C:\data\cats\a.jpg` finds `cats/a.jpg`), then by a unique file name. YOLO stores positions as fractions of the image size, so it needs each image's size: from `images.csv` when the zip came from this app, otherwise from the images in your list (drop a dataset folder with `images/` and `labels/` together).
 
 ### The JSON format
 
@@ -134,7 +137,7 @@ The export is unchanged from the original app, so old files import as they are. 
 }
 ```
 
-`image_url` names the image: a URL for online images, `samples/…` for the samples, and the path inside the folder you opened for your own files. `display_size` and `scale_factor` describe how large the image was on screen when fitted, as in the original app.
+`image_url` names the image: a URL for online images, `samples/…` for the samples, and the path inside the folder you opened for your own files. `display_size` and `scale_factor` describe how large the image was on screen when fitted, as in the original app. Online pictures add a `credit` object, for example `{ "provider": "Danbooru", "artist": "…", "post_url": "https://danbooru.donmai.us/posts/…", "source_url": "…" }`; other records look exactly as before.
 
 ## How the data flows
 
@@ -142,7 +145,7 @@ The export is unchanged from the original app, so old files import as they are. 
 flowchart LR
   subgraph sources [Images]
     S[Bundled samples]
-    R[nekos.best<br/>random image]
+    R[Danbooru rating:g<br/>or nekos.best]
     L[Your files<br/>and folders]
   end
   S --> Q[Image list]
@@ -155,7 +158,9 @@ flowchart LR
   D --> X[Export<br/>JSON, COCO, YOLO, VOC]
 ```
 
-The browser keeps three things in `localStorage`: `annotation_data` (submitted images, the same key the original app used), `userName`, and `image-annotation:classes`. Your own images are read straight from disk and never leave the browser. The app only goes online to fetch a random picture, when you press <kbd>R</kbd> or finish the list.
+The browser keeps a few things in `localStorage`: `annotation_data` (submitted images, the same key the original app used), `userName`, `image-annotation:classes` and your choice of random source. Your own images are read straight from disk and never leave the browser.
+
+The app goes online only for random pictures: once when it opens, when you press <kbd>R</kbd>, and after you submit an online picture. Danbooru answers 20 general-audience posts per request; the app keeps them in memory and shows them one by one, so most pictures cost no extra request. If Danbooru is unreachable or rate-limiting, you get a message saying so, and the built-in illustrations carry on.
 
 ## Development
 
@@ -177,7 +182,7 @@ CI on GitHub Actions lints, tests and builds every pull request, runs the browse
 
 ## Credits
 
-The six sample pictures are original illustrations drawn in code (`scripts/samples.mjs`); their boxes are in `docs/demo-annotations.json`. Random pictures come from [nekos.best](https://nekos.best), and the status bar credits each artist.
+The six sample pictures are original illustrations drawn in code (`scripts/samples.mjs`); their boxes are in `docs/demo-annotations.json`. They are the only pictures in this repository and in the screenshots. Random pictures load straight from [Danbooru](https://danbooru.donmai.us) or [nekos.best](https://nekos.best) while you use the app, and each one is credited to its artist with links to the post and the original source.
 
 ## License
 

@@ -1,6 +1,6 @@
 import { DEFAULT_ANNOTATOR, DEFAULT_LABEL } from '@/config';
 import { newBoxId } from '@/lib/ids';
-import type { AnnotationData, AnnotationSession, BoundingBox, Size } from '@/types';
+import type { AnnotationData, AnnotationSession, BoundingBox, ImageCredit, Size } from '@/types';
 
 /**
  * Submitted annotations: building the v1 `AnnotationData` summary, upserting
@@ -71,6 +71,18 @@ export function readBox(v: unknown): BoundingBox | undefined {
   return { id: str(v.id) ?? newBoxId(), x, y, width, height, label: str(v.label) ?? DEFAULT_LABEL };
 }
 
+/** Image credit, if the value looks like one (links must be http or https). */
+export function readCredit(v: unknown): ImageCredit | undefined {
+  if (!isObject(v)) return undefined;
+  const provider = str(v.provider);
+  if (!provider) return undefined;
+  const link = (u: unknown) => (typeof u === 'string' && /^https?:\/\//i.test(u) ? u : undefined);
+  const artist = str(v.artist);
+  const post = link(v.post_url);
+  const source = link(v.source_url);
+  return { provider, ...(artist && { artist }), ...(post && { post_url: post }), ...(source && { source_url: source }) };
+}
+
 /** A record in the v1 shape, with defaults for optional fields; `undefined` if unusable. */
 export function readRecord(v: unknown, now: string): AnnotationSession | undefined {
   if (!isObject(v)) return undefined;
@@ -79,6 +91,7 @@ export function readRecord(v: unknown, now: string): AnnotationSession | undefin
   if (!imageUrl || !originalSize) return undefined;
   const boxes = Array.isArray(v.bounding_boxes) ? v.bounding_boxes.map(readBox).filter((b) => b !== undefined) : [];
   const timestamp = str(v.timestamp) ?? now;
+  const credit = readCredit(v.credit);
   return {
     session_id: str(v.session_id) ?? `session_${Date.parse(timestamp) || Date.now()}`,
     image_url: imageUrl,
@@ -88,6 +101,7 @@ export function readRecord(v: unknown, now: string): AnnotationSession | undefin
     annotator: str(v.annotator) ?? DEFAULT_ANNOTATOR,
     timestamp,
     bounding_boxes: boxes,
+    ...(credit && { credit }),
   };
 }
 

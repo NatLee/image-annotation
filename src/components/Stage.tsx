@@ -4,7 +4,7 @@ import { BOX, GRID_DIVISIONS, ZOOM } from '@/config';
 import { colorFor } from '@/lib/classes';
 import { type View, fitView, moveBox, rectFromPoints, resizeBox, toImagePoint, toScreenRect, zoomAt } from '@/lib/geometry';
 import { isEditableTarget } from '@/lib/browser';
-import type { BoundingBox, ImageItem, LabelClass, Point, Rect, ResizeHandle, Size } from '@/types';
+import type { BoundingBox, ImageCredit, ImageItem, LabelClass, Point, Rect, ResizeHandle, Size } from '@/types';
 
 export interface StageHandle {
   zoomIn(): void;
@@ -314,6 +314,8 @@ export function Stage({ ref, item, boxes, selectedId, classes, showGrid, onSelec
         </div>
       )}
 
+      {item?.credit && <CreditBadge credit={item.credit} />}
+
       {cursor?.image && (
         <div className="pointer-events-none absolute left-3 top-3 rounded-md bg-ink-950/75 px-2 py-1 font-mono text-[11px] text-ink-300 backdrop-blur" data-testid="cursor">
           x {cursor.image.x} · y {cursor.image.y}
@@ -392,5 +394,37 @@ function BoxShape({ box, view, color, selected }: { box: BoundingBox; view: View
           />
         ))}
     </g>
+  );
+}
+
+/** Who made an online picture and where it lives, always shown next to it. */
+function CreditBadge({ credit }: { credit: ImageCredit }) {
+  const link = 'text-ink-100 underline decoration-ink-500 underline-offset-2 hover:decoration-ink-200';
+  return (
+    <div
+      data-testid="credit"
+      onPointerDown={(e) => e.stopPropagation()}
+      className="absolute right-3 top-3 max-w-[min(30rem,65%)] rounded-lg bg-ink-950/80 px-3 py-1.5 text-[11px] leading-relaxed text-ink-400 backdrop-blur"
+    >
+      Art by <span className="text-ink-100">{credit.artist ?? 'an unknown artist'}</span>
+      {credit.post_url ? (
+        <>
+          {' · '}
+          <a className={link} href={credit.post_url} target="_blank" rel="noreferrer">
+            {credit.provider} post
+          </a>
+        </>
+      ) : (
+        <> · via {credit.provider}</>
+      )}
+      {credit.source_url && (
+        <>
+          {' · '}
+          <a className={link} href={credit.source_url} target="_blank" rel="noreferrer">
+            original source
+          </a>
+        </>
+      )}
+    </div>
   );
 }

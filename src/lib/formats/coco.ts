@@ -1,7 +1,8 @@
 import { REPO_URL } from '@/config';
 import { newBoxId } from '@/lib/ids';
 import { exportFileName, isRemote } from '@/lib/paths';
-import type { AnnotationSession, LabelClass } from '@/types';
+import { readCredit } from '@/lib/records';
+import type { AnnotationSession, ImageCredit, LabelClass } from '@/types';
 import type { ImportedImage } from './imported';
 
 /** COCO object detection format: https://cocodataset.org/#format-data */
@@ -15,6 +16,8 @@ export interface CocoImage {
   /** Not part of COCO; readers ignore it. Keeps who annotated it on a round trip. */
   annotator?: string;
   date_captured?: string;
+  /** Not part of COCO either: who made an online image and where it came from. */
+  credit?: ImageCredit;
 }
 
 export interface CocoAnnotation {
@@ -67,6 +70,7 @@ export function toCoco(records: readonly AnnotationSession[], classes: readonly 
       ...(isRemote(record.image_url) ? { coco_url: record.image_url } : {}),
       annotator: record.annotator,
       date_captured: record.timestamp,
+      ...(record.credit && { credit: record.credit }),
     });
     for (const box of record.bounding_boxes) {
       annotations.push({
@@ -131,6 +135,7 @@ export function readCoco(coco: CocoFile): { images: ImportedImage[]; skipped: nu
       boxes: () => boxes,
       annotator: image.annotator,
       timestamp: image.date_captured,
+      credit: readCredit(image.credit),
     });
   }
   return { images, skipped };

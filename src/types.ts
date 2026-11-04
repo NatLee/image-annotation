@@ -27,6 +27,18 @@ export interface BoundingBox extends Rect {
   label: string;
 }
 
+/** Who made an online image and where it came from. Written into exports for online images. */
+export interface ImageCredit {
+  /** The service the image was loaded from, e.g. "Danbooru". */
+  provider: string;
+  /** Artist name(s) as the provider lists them. */
+  artist?: string;
+  /** The image's page on the provider (a Danbooru post). */
+  post_url?: string;
+  /** Where the artist originally published it. */
+  source_url?: string;
+}
+
 /** One submitted image (v1 name kept). */
 export interface AnnotationSession {
   session_id: string;
@@ -38,6 +50,8 @@ export interface AnnotationSession {
   annotator: string;
   timestamp: string;
   bounding_boxes: BoundingBox[];
+  /** Only for online images; v1 records have none. */
+  credit?: ImageCredit;
 }
 
 /** What the browser stores under `annotation_data` (v1). */
@@ -76,7 +90,7 @@ export interface ImageItem {
   src: string;
   name: string;
   source: ImageSource;
-  credit?: { name: string; href?: string };
+  credit?: ImageCredit;
   size?: Size;
   failed?: boolean;
 }

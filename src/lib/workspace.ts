@@ -115,6 +115,8 @@ export function buildRecord(
     annotator: meta.annotator,
     timestamp: meta.now,
     bounding_boxes: boxes.map((b) => ({ ...b })),
+    // Online images carry their credit into the record (and every export).
+    ...(item.credit && { credit: item.credit }),
   };
 }
 

@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
-import { RANDOM_SOURCE } from '@/config';
-import { fetchRandomImage, localItems, onlineItems, parseRandomResponse, SAMPLE_IMAGES } from './sources';
+import { describe, expect, it } from 'vitest';
+import type { AnnotationSession } from '@/types';
+import { localItems, onlineItems, SAMPLE_IMAGES } from './sources';
 
 describe('sample set', () => {
   it('ships images keyed by a stable samples/ path', () => {
@@ -9,42 +9,6 @@ describe('sample set', () => {
       expect(item.key).toBe(`samples/${item.name}`);
       expect(item.source).toBe('sample');
     }
-  });
-});
-
-describe('random online image', () => {
-  const reply = {
-    results: [
-      {
-        artist_name: 'someone',
-        artist_href: 'https://example.com/artist',
-        source_url: 'https://example.com/post/1',
-        url: 'https://nekos.best/api/v2/neko/abc.png',
-      },
-    ],
-  };
-
-  it('reads the reply and keeps the credit', () => {
-    expect(parseRandomResponse(reply)).toEqual({
-      key: 'https://nekos.best/api/v2/neko/abc.png',
-      src: 'https://nekos.best/api/v2/neko/abc.png',
-      name: 'abc.png',
-      source: 'online',
-      credit: { name: 'someone', href: 'https://example.com/post/1' },
-    });
-  });
-
-  it('rejects replies without an https image', () => {
-    expect(parseRandomResponse({ results: [{ url: 'http://x/y.png' }] })).toBeUndefined();
-    expect(parseRandomResponse(null)).toBeUndefined();
-  });
-
-  it('calls the configured endpoint and reports failures', async () => {
-    const ok = vi.fn(async () => new Response(JSON.stringify(reply)));
-    await expect(fetchRandomImage(ok)).resolves.toMatchObject({ source: 'online' });
-    expect(ok).toHaveBeenCalledWith(RANDOM_SOURCE.endpoint, expect.anything());
-    const down = vi.fn(async () => new Response('', { status: 503 }));
-    await expect(fetchRandomImage(down)).rejects.toThrow('503');
   });
 });
 
@@ -67,8 +31,24 @@ describe('local files', () => {
 });
 
 describe('imported online images', () => {
-  it('adds URLs that are not listed yet, once', () => {
-    const items = onlineItems(['https://a/x.png', 'https://a/x.png', 'local/y.png', 'https://a/z.png'], new Set(['https://a/z.png']));
-    expect(items).toEqual([{ key: 'https://a/x.png', src: 'https://a/x.png', name: 'x.png', source: 'online' }]);
+  const record = (image_url: string, credit?: AnnotationSession['credit']): AnnotationSession => ({
+    session_id: 's',
+    image_url,
+    original_size: { width: 10, height: 10 },
+    display_size: { width: 10, height: 10 },
+    scale_factor: 1,
+    annotator: 'a',
+    timestamp: '2026-11-04T00:00:00.000Z',
+    bounding_boxes: [],
+    ...(credit && { credit }),
+  });
+
+  it('adds URLs that are not listed yet, once, with their credit', () => {
+    const credit = { provider: 'Danbooru', artist: 'someone', post_url: 'https://danbooru.donmai.us/posts/1' };
+    const items = onlineItems(
+      [record('https://a/x.png', credit), record('https://a/x.png'), record('local/y.png'), record('https://a/z.png')],
+      new Set(['https://a/z.png']),
+    );
+    expect(items).toEqual([{ key: 'https://a/x.png', src: 'https://a/x.png', name: 'x.png', source: 'online', credit }]);
   });
 });
