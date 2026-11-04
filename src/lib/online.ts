@@ -28,14 +28,14 @@ async function getJson(source: string, url: string, fetchImpl: typeof fetch): Pr
     response = await fetchImpl(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(ONLINE_TIMEOUT_MS) });
   } catch (error) {
     const timedOut = error instanceof DOMException && error.name === 'TimeoutError';
-    throw new OnlineSourceError(timedOut ? `${source} did not answer within ${ONLINE_TIMEOUT_MS / 1000} seconds` : `Could not reach ${source}`);
+    throw new OnlineSourceError(timedOut ? `${source} did not answer within ${ONLINE_TIMEOUT_MS / 1000} seconds.` : `Could not reach ${source}.`);
   }
   if (response.status === 429) throw new OnlineSourceError(`${source} is limiting requests right now. Wait a minute and try again.`);
-  if (!response.ok) throw new OnlineSourceError(`${source} answered with an error (${response.status})`);
+  if (!response.ok) throw new OnlineSourceError(`${source} answered with an error (${response.status}).`);
   try {
     return await response.json();
   } catch {
-    throw new OnlineSourceError(`${source} sent something that is not JSON`);
+    throw new OnlineSourceError(`${source} sent something that is not JSON.`);
   }
 }
 
@@ -142,7 +142,7 @@ export function nekosSource(): OnlineSource {
     homepage: NEKOS_BEST.homepage,
     async next(fetchImpl = fetch) {
       const item = readNekosReply(await getJson(NEKOS_BEST.name, NEKOS_BEST.endpoint, fetchImpl));
-      if (!item) throw new OnlineSourceError(`${NEKOS_BEST.name} sent no image`);
+      if (!item) throw new OnlineSourceError(`${NEKOS_BEST.name} sent no image.`);
       return item;
     },
   };

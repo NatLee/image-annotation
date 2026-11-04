@@ -154,3 +154,25 @@ describe('nekos.best', () => {
     expect(fetch).toHaveBeenCalledWith(NEKOS_BEST.endpoint, expect.anything());
   });
 });
+
+describe('error messages', () => {
+  it('are full sentences, so the app can append its own advice', async () => {
+    const failures = [
+      async () => reply({}, 429),
+      async () => reply({}, 500),
+      async () => new Response('<html>'),
+      async () => {
+        throw new TypeError('Failed to fetch');
+      },
+      async () => {
+        throw new DOMException('timed out', 'TimeoutError');
+      },
+    ];
+    for (const fail of failures) {
+      const error = (await danbooruSource().next(fail).catch((e: Error) => e)) as Error;
+      expect(error.message).toMatch(/[.!?]$/);
+    }
+    const nekos = (await nekosSource().next(async () => reply({ results: [] })).catch((e: Error) => e)) as Error;
+    expect(nekos.message).toMatch(/[.!?]$/);
+  });
+});
