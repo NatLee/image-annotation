@@ -1,0 +1,106 @@
+{
+  "description": "The bundled sample pictures (the offline fallback). Generated for the repository owner with Codex image generation; same licence as this repository.",
+  "tool": "Codex CLI image generation",
+  "tool_version": "codex-cli 0.166.0",
+  "image_model": "gpt-image-2 (as named by Codex)",
+  "command": "codex exec --skip-git-repo-check --ephemeral -s workspace-write -C <empty folder> \"<prompt>\"",
+  "processing": "Resized to fit 1280 x 1280 and saved as WebP quality 82 with ImageMagick: magick in.png -resize 1280x1280 -quality 82 -define webp:method=6 out.webp",
+  "images": [
+    {
+      "file": "01-picnic.webp",
+      "purpose": "Two characters plus food and props on a blanket: faces and people to box, first picture of the set",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): two friends having a picnic on a checkered blanket under cherry blossom trees in a sunny park, both fully clothed in casual spring outfits, smiling and talking, a wicker basket and drinks between them, crisp clean line art, highly detailed, sharp focus, landscape 3:2, suitable for all ages. Save the image file into the current directory as 01-picnic.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1536,
+        "height": 1024
+      },
+      "stored_size": {
+        "width": 1280,
+        "height": 853
+      },
+      "sha256": "c8d637152b28995f46e4d8f43bdc5d7c286b430e93a2a16a9a7193f893f65518",
+      "generated_png_sha256": "3edf2532cc47ea69804e2e80238e9d21b962b44397697a4858febf0b277246db"
+    },
+    {
+      "file": "02-classroom.webp",
+      "purpose": "Three characters at desks, overlapping, indoor light",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): three classmates chatting around their desks in a bright classroom after school, chalkboard and large windows behind them, everyone fully clothed in neat school uniforms with blazers, one holding an open notebook, friendly expressions, crisp clean line art, highly detailed, sharp focus, landscape 3:2, suitable for all ages. Save the image file into the current directory as 02-classroom.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1536,
+        "height": 1024
+      },
+      "stored_size": {
+        "width": 1280,
+        "height": 853
+      },
+      "sha256": "2a58730e5a18192ed47ed3b2fb7df90ef7deaa2340ac2e5a183e462b617183c7",
+      "generated_png_sha256": "179a33de2db8082f4492b0088ca0a26ad7ae307f4b5adad962fe974d492d2e32"
+    },
+    {
+      "file": "03-night-festival.webp",
+      "purpose": "Night scene with three characters and a busy background crowd",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): three friends in modest yukata walking through a summer festival at night, glowing paper lanterns and food stalls behind them, one holding a small paper fan and another a candy apple, cheerful faces, crisp clean line art, highly detailed, sharp focus, landscape 3:2, suitable for all ages. Save the image file into the current directory as 03-night-festival.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1536,
+        "height": 1024
+      },
+      "stored_size": {
+        "width": 1280,
+        "height": 853
+      },
+      "sha256": "0a6177c6d9ba9807da2949a3628869c82a130897279b51a7f0d8da4223b91000",
+      "generated_png_sha256": "609cc9f6a9525b7186d770a933230364e76a6a470e2a36f3dc0517862aafc348"
+    },
+    {
+      "file": "04-portrait.webp",
+      "purpose": "Portrait orientation, one small full-body figure",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): a young woman with short green hair in a cozy knit cardigan and long skirt standing in a field of flowers on a windy day, holding a straw hat, gentle smile, crisp clean line art, highly detailed, sharp focus, portrait 2:3, suitable for all ages. Save the image file into the current directory as 04-portrait.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1024,
+        "height": 1536
+      },
+      "stored_size": {
+        "width": 853,
+        "height": 1280
+      },
+      "sha256": "44cf6db65d5d000ce4e7d86da5300a40009cd13ddaf8f10197b556d78dd8e199",
+      "generated_png_sha256": "becd61820f5eaba8f9e5f300176804fd8107675b69cb72d7c40a0f69923443da"
+    },
+    {
+      "file": "05-cafe.webp",
+      "purpose": "Two characters across a table with many small objects",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): two friends sitting across a small table in a cozy cafe by a large window, coffee cups and slices of cake on the table, one laughing and one holding a menu, both fully clothed in sweaters, warm afternoon light, crisp clean line art, highly detailed, sharp focus, landscape 3:2, suitable for all ages. Save the image file into the current directory as 05-cafe.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1536,
+        "height": 1024
+      },
+      "stored_size": {
+        "width": 1280,
+        "height": 853
+      },
+      "sha256": "2732d28caf8f34be937872fb71250f43b6b6ec39c94b923cd89856a117bb1074",
+      "generated_png_sha256": "517f9cdc2560780c1b174cb593be9d7385e20395a97cb95428e18788865d877e"
+    },
+    {
+      "file": "06-group-photo.webp",
+      "purpose": "Five characters side by side: many boxes in one picture",
+      "prompt": "Use your image generation tool to create ONE original anime-style illustration (not copying any existing character or artist): a group photo of five friends of different heights and hairstyles standing together and waving in front of a school building under a blue sky, everyone fully clothed in casual jackets and sweaters, happy faces, crisp clean line art, highly detailed, sharp focus, landscape 3:2, suitable for all ages. Save the image file into the current directory as 06-group-photo.png, then reply with only the saved file path and its pixel size.",
+      "date": "2026-11-05",
+      "generated_size": {
+        "width": 1536,
+        "height": 1024
+      },
+      "stored_size": {
+        "width": 1280,
+        "height": 853
+      },
+      "sha256": "2b87d60c7ffe609bfed836c48c933dfa46390e7dfe650a1eb6e3988dc5029fb0",
+      "generated_png_sha256": "b23fc20b488952b88866a2fb686794bd3801b49ef036a11ee2f63801114a6cf0"
+    }
+  ]
+}
