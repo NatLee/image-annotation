@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { type Page, expect, test } from '@playwright/test';
+import { REPO_URL } from '../src/config';
 
 /** The bundled samples, their sizes and boxes, as listed in the demo annotations. */
 const DEMO = JSON.parse(readFileSync('docs/demo-annotations.json', 'utf8'));
@@ -305,4 +306,16 @@ test('moves and resizes a box with the mouse', async ({ page }) => {
 
   await page.keyboard.press('Control+z');
   await expect(page.getByTestId('box-list')).toContainText(at(BOX.x + 100, BOX.y + 50));
+});
+
+test('links to the source code on GitHub, in a new tab, reachable by keyboard', async ({ page }) => {
+  await start(page);
+  // The one place the URL lives is config.ts; it should be this repository.
+  expect(REPO_URL).toBe('https://github.com/NatLee/image-annotation');
+  const link = page.getByRole('link', { name: 'Source code on GitHub' });
+  await expect(link).toHaveAttribute('href', REPO_URL);
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', /(^|\s)noopener(\s|$)/);
+  await link.focus();
+  await expect(link).toBeFocused();
 });

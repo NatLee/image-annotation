@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 import { cx } from '@/lib/cx';
 
 type Tone = 'default' | 'primary' | 'danger' | 'ghost';
@@ -45,6 +45,9 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   tipSide?: 'bottom' | 'top' | 'left';
 }
 
+const ICON_CONTROL =
+  'inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 disabled:pointer-events-none disabled:opacity-35';
+
 export function IconButton({ icon: Icon, label, hint, active, tipSide = 'bottom', className, type = 'button', ...rest }: IconButtonProps) {
   return (
     <button
@@ -53,15 +56,34 @@ export function IconButton({ icon: Icon, label, hint, active, tipSide = 'bottom'
       aria-pressed={active}
       data-tip={hint ? `${label} · ${hint}` : label}
       data-tip-side={tipSide}
-      className={cx(
-        'inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 disabled:pointer-events-none disabled:opacity-35',
-        active && 'bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent',
-        className,
-      )}
+      className={cx(ICON_CONTROL, active && 'bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent', className)}
       {...rest}
     >
       <Icon size={18} strokeWidth={1.9} aria-hidden />
     </button>
+  );
+}
+
+export interface IconLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+  label: string;
+  tipSide?: 'bottom' | 'top' | 'left';
+  children: ReactNode;
+}
+
+/** An icon that leaves the app: same look as IconButton, opens in a new tab. */
+export function IconLink({ label, tipSide = 'bottom', className, children, ...rest }: IconLinkProps) {
+  return (
+    <a
+      aria-label={label}
+      data-tip={label}
+      data-tip-side={tipSide}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cx(ICON_CONTROL, className)}
+      {...rest}
+    >
+      {children}
+    </a>
   );
 }
 
