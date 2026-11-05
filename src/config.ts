@@ -68,23 +68,20 @@ export const PALETTE = [
 
 /**
  * Online sources of random anime images (v1 used waifu.im, which is gone).
- * Danbooru is the default. Only general-audience posts are ever requested.
+ * nekos.best is the default; Danbooru is optional and only ever asked for
+ * general-audience posts.
  */
 export const DANBOORU = {
   name: 'Danbooru',
   homepage: 'https://danbooru.donmai.us',
-  endpoint: 'https://danbooru.donmai.us/posts.json',
+  /** One random post per request; the same request a normal browser was seen to succeed with. */
+  randomEndpoint: 'https://danbooru.donmai.us/posts/random.json',
   postUrl: 'https://danbooru.donmai.us/posts/',
   /** General-audience posts only (`rating:g`); responses are filtered on `rating` again. */
   tags: 'rating:g',
   rating: 'g',
-  /** Posts per request. The rest wait in memory, so most images cost no API call. */
-  batchSize: 20,
-  /**
-   * Random batches are taken "before a random post id" (`page=b<id>`), between this id
-   * and the newest one seen. Older posts are smaller and more often deleted.
-   */
-  oldestPostId: 1_000_000,
+  /** Requests per picture at most, when a random post turns out to be a video or deleted. */
+  attempts: 3,
   imageExtensions: ['jpg', 'jpeg', 'png', 'webp'],
 } as const;
 
@@ -95,7 +92,7 @@ export const NEKOS_BEST = {
 } as const;
 
 export type OnlineSourceId = 'danbooru' | 'nekos';
-export const DEFAULT_ONLINE_SOURCE: OnlineSourceId = 'danbooru';
+export const DEFAULT_ONLINE_SOURCE: OnlineSourceId = 'nekos';
 
 /** Give up on an online source after this long (milliseconds). */
 export const ONLINE_TIMEOUT_MS = 10_000;

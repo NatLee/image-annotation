@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DANBOORU, NEKOS_BEST } from '@/config';
-import { danbooruSource, danbooruUrl, nekosSource, OnlineSourceError, readDanbooruPosts, readNekosReply } from './online';
+import { createOnlineSources, danbooruSource, danbooruUrl, nekosSource, OnlineSourceError, readDanbooruPosts, readNekosReply } from './online';
 
-/** A Danbooru post as `posts.json` returns it (only the fields the app reads). */
+/** A Danbooru post as `posts/random.json` returns it (only the fields the app reads). */
 const post = (id: number, over: Record<string, unknown> = {}) => ({
   id,
   rating: 'g',
@@ -20,9 +20,19 @@ const post = (id: number, over: Record<string, unknown> = {}) => ({
 
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
+/** Runs `next()` and returns the error it throws. */
+async function failure(promise: Promise<unknown>): Promise<OnlineSourceError> {
+  const error = await promise.then(
+    () => undefined,
+    (e: unknown) => e,
+  );
+  expect(error).toBeInstanceOf(OnlineSourceError);
+  return error as OnlineSourceError;
+}
+
 describe('Danbooru posts', () => {
   it('turns a general post into a credited list item, using the web-sized sample', () => {
-    expect(readDanbooruPosts([post(42)])).toEqual([
+    expect(readDanbooruPosts(post(42))).toEqual([
       {
         key: 'https://cdn.donmai.us/sample/aa/bb/sample-42.jpg',
         src: 'https://cdn.donmai.us/sample/aa/bb/sample-42.jpg',
@@ -59,72 +69,77 @@ describe('Danbooru posts', () => {
   });
 
   it('leaves out missing artist and non-link sources', () => {
-    const [item] = readDanbooruPosts([post(5, { tag_string_artist: '', source: 'scanned from a magazine' })]);
+    const [item] = readDanbooruPosts(post(5, { tag_string_artist: '', source: 'scanned from a magazine' }));
     expect(item.credit).toEqual({ provider: 'Danbooru', post_url: 'https://danbooru.donmai.us/posts/5' });
   });
 
-  it('never builds a request without rating:g', () => {
-    for (const before of [undefined, 1234567]) {
-      const url = new URL(danbooruUrl(before));
-      expect(url.origin + url.pathname).toBe(DANBOORU.endpoint);
-      expect(url.searchParams.get('tags')).toBe('rating:g');
-      expect(url.searchParams.get('limit')).toBe(String(DANBOORU.batchSize));
-    }
-    expect(new URL(danbooruUrl(undefined)).searchParams.get('page')).toBe('1');
-    expect(new URL(danbooruUrl(1234567)).searchParams.get('page')).toBe('b1234567');
+  it('asks for one random general-rated post, exactly like the request a browser succeeded with', () => {
+    expect(danbooruUrl()).toBe('https://danbooru.donmai.us/posts/random.json?tags=rating%3Ag');
+    expect(danbooruUrl().startsWith(DANBOORU.randomEndpoint)).toBe(true);
   });
 });
 
 describe('Danbooru source', () => {
-  it('asks once per batch and serves the rest from memory', async () => {
-    const fetch = vi.fn(async (_url: unknown) => reply([post(3_000_003), post(3_000_002), post(3_000_001)]));
-    const source = danbooruSource(() => 0.5);
-    const names = [await source.next(fetch), await source.next(fetch), await source.next(fetch)].map((i) => i.name);
-    expect(new Set(names).size).toBe(3);
+  it('makes one plain request per picture: no custom headers, so no CORS preflight', async () => {
+    const fetch = vi.fn(async (_url: unknown, _init?: RequestInit) => reply(post(7)));
+    const item = await danbooruSource().next(fetch as typeof globalThis.fetch);
+    expect(item.name).toBe('danbooru-7.jpg');
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(new URL(String(fetch.mock.calls[0][0])).searchParams.get('page')).toBe('1');
-  });
-
-  it('takes later batches from a random point in history, before the newest id it has seen', async () => {
-    let id = 3_000_000;
-    const fetch = vi.fn(async (_url: unknown) => reply([post(id--)]));
-    const source = danbooruSource(() => 0.5);
-    await source.next(fetch);
-    await source.next(fetch);
-    const page = new URL(String(fetch.mock.calls[1][0])).searchParams.get('page');
-    // halfway between oldestPostId (1,000,000) and the newest id seen (3,000,000)
-    expect(page).toBe('b2000000');
-  });
-
-  it('does not show the same picture twice in a session', async () => {
-    const fetch = vi.fn(async () => reply([post(10)]));
-    const source = danbooruSource(() => 0);
-    await source.next(fetch);
-    await expect(source.next(fetch)).rejects.toThrow(/no general-audience pictures/);
-  });
-
-  it('explains rate limits, errors, timeouts and network failures', async () => {
-    await expect(danbooruSource().next(async () => reply({}, 429))).rejects.toThrow('limiting requests');
-    await expect(danbooruSource().next(async () => reply({}, 503))).rejects.toThrow('(503)');
-    await expect(danbooruSource().next(async () => new Response('<html>'))).rejects.toThrow('not JSON');
-    await expect(
-      danbooruSource().next(async () => {
-        throw new DOMException('timed out', 'TimeoutError');
-      }),
-    ).rejects.toThrow('did not answer');
-    const failure = danbooruSource().next(async () => {
-      throw new TypeError('Failed to fetch');
-    });
-    await expect(failure).rejects.toBeInstanceOf(OnlineSourceError);
-    await expect(failure).rejects.toThrow('Could not reach Danbooru');
-  });
-
-  it('sends a JSON Accept header and a timeout', async () => {
-    const fetch = vi.fn(async (_url: unknown, _init?: RequestInit) => reply([post(1)]));
-    await danbooruSource().next(fetch as typeof globalThis.fetch);
     const init = fetch.mock.calls[0][1]!;
-    expect(new Headers(init.headers).get('Accept')).toBe('application/json');
+    expect(init.headers).toBeUndefined();
+    expect(init.method).toBeUndefined();
     expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('asks again when the random post is not usable, at most three times', async () => {
+    const replies = [post(1, { rating: 'e' }), post(2, { file_ext: 'mp4' }), post(3)];
+    const fetch = vi.fn(async () => reply(replies.shift()));
+    await expect(danbooruSource().next(fetch)).resolves.toMatchObject({ name: 'danbooru-3.jpg' });
+    expect(fetch).toHaveBeenCalledTimes(3);
+
+    const never = vi.fn(async () => reply(post(9, { rating: 's' })));
+    const error = await failure(danbooruSource().next(never));
+    expect(error.code).toBe('danbooru/no-image');
+    expect(never).toHaveBeenCalledTimes(DANBOORU.attempts);
+  });
+
+  it('gives every failure a short report code', async () => {
+    const cases: [() => Promise<Response>, string][] = [
+      [async () => reply({}, 429), 'danbooru/http-429'],
+      [async () => new Response('<h1>Danbooru is down for maintenance.</h1>', { status: 503 }), 'danbooru/http-503'],
+      [async () => new Response('<html>'), 'danbooru/not-json'],
+      [
+        async () => {
+          throw new DOMException('timed out', 'TimeoutError');
+        },
+        'danbooru/timeout',
+      ],
+      [
+        async () => {
+          throw new TypeError('Failed to fetch');
+        },
+        'danbooru/network',
+      ],
+    ];
+    for (const [fetch, code] of cases) {
+      const error = await failure(danbooruSource().next(fetch));
+      expect(error.code).toBe(code);
+      expect(error.message).toMatch(/[.!?]$/); // the app adds the code and its own advice after it
+    }
+  });
+
+  it('says so when the browser is offline', async () => {
+    vi.stubGlobal('navigator', { onLine: false });
+    try {
+      const error = await failure(
+        danbooruSource().next(async () => {
+          throw new TypeError('Failed to fetch');
+        }),
+      );
+      expect(error.code).toBe('danbooru/offline');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 
@@ -148,31 +163,21 @@ describe('nekos.best', () => {
     expect(readNekosReply(null)).toBeUndefined();
   });
 
-  it('calls its endpoint', async () => {
-    const fetch = vi.fn(async () => reply(nekos));
-    await expect(nekosSource().next(fetch)).resolves.toMatchObject({ source: 'online' });
-    expect(fetch).toHaveBeenCalledWith(NEKOS_BEST.endpoint, expect.anything());
+  it('calls its endpoint with a plain request', async () => {
+    const fetch = vi.fn(async (_url: unknown, _init?: RequestInit) => reply(nekos));
+    await expect(nekosSource().next(fetch as typeof globalThis.fetch)).resolves.toMatchObject({ source: 'online' });
+    expect(fetch.mock.calls[0][0]).toBe(NEKOS_BEST.endpoint);
+    expect(fetch.mock.calls[0][1]!.headers).toBeUndefined();
+  });
+
+  it('reports an empty reply with a code', async () => {
+    const error = await failure(nekosSource().next(async () => reply({ results: [] })));
+    expect(error.code).toBe('nekos/no-image');
   });
 });
 
-describe('error messages', () => {
-  it('are full sentences, so the app can append its own advice', async () => {
-    const failures = [
-      async () => reply({}, 429),
-      async () => reply({}, 500),
-      async () => new Response('<html>'),
-      async () => {
-        throw new TypeError('Failed to fetch');
-      },
-      async () => {
-        throw new DOMException('timed out', 'TimeoutError');
-      },
-    ];
-    for (const fail of failures) {
-      const error = (await danbooruSource().next(fail).catch((e: Error) => e)) as Error;
-      expect(error.message).toMatch(/[.!?]$/);
-    }
-    const nekos = (await nekosSource().next(async () => reply({ results: [] })).catch((e: Error) => e)) as Error;
-    expect(nekos.message).toMatch(/[.!?]$/);
+describe('source list', () => {
+  it('puts the default (nekos.best) first and keeps Danbooru selectable', () => {
+    expect(Object.keys(createOnlineSources())).toEqual(['nekos', 'danbooru']);
   });
 });
