@@ -10,11 +10,11 @@
 ![React 19](https://img.shields.io/badge/React-19-149eca)
 ![Vite 8](https://img.shields.io/badge/Vite-8-646cff)
 
-A keyboard-first bounding-box annotator that runs entirely in your browser. Start with random anime pictures from Danbooru, open a folder of your own images, or use the built-in illustrations offline; drag boxes around what matters, sort them into colour-coded classes, and export everything as COCO, YOLO, Pascal VOC or the app's own JSON. It began as a little crowd-sourcing tool for boxing anime faces, and it still does that, but it now handles any small labelling job. Nothing is uploaded: your work stays in the browser until you export it.
+A keyboard-first bounding-box annotator that runs entirely in your browser. Start with random anime pictures from nekos.best or Danbooru, open a folder of your own images, or use the built-in sample pictures offline; drag boxes around what matters, sort them into colour-coded classes, and export everything as COCO, YOLO, Pascal VOC or the app's own JSON. It began as a little crowd-sourcing tool for boxing anime faces, and it still does that, but it now handles any small labelling job. Nothing is uploaded: your work stays in the browser until you export it.
 
 **[Open the app →](https://natlee.github.io/image-annotation/)**
 
-![The editor: the image list with progress on the left, colour-coded boxes on the canvas, classes and boxes on the right](docs/images/editor.png)
+![The editor: the image list with progress on the left, colour-coded boxes on the canvas, classes and boxes on the right](docs/images/editor.jpg)
 
 ## What it does
 
@@ -24,7 +24,7 @@ A keyboard-first bounding-box annotator that runs entirely in your browser. Star
 - **Undo and redo** every edit, separately for each image.
 - **Work through a list**: thumbnails, status and a progress bar. Open files, a whole folder, or drop them anywhere on the page.
 - **Import and export** JSON, COCO, YOLO and Pascal VOC.
-- **Random anime pictures** from [Danbooru](https://danbooru.donmai.us) (general-audience `rating:g` posts only) or [nekos.best](https://nekos.best), press <kbd>R</kbd>. Each one is credited on the canvas: artist, a link to the post and the original source.
+- **Random anime pictures** from [nekos.best](https://nekos.best), or from [Danbooru](https://danbooru.donmai.us) (general-audience `rating:g` posts only) if you pick it; press <kbd>R</kbd>. Each one is credited on the canvas: artist, a link to the post and the original source.
 - From the original app: the leaderboard, the 10 × 10 grid on <kbd>D</kbd>, and a default box on every new image.
 
 ![Drawing three boxes, zooming in, and submitting with Enter](docs/images/workflow.gif)
@@ -51,7 +51,7 @@ BASE_PATH=image-annotation npm run build   # assets load from /image-annotation/
 ## Annotating, step by step
 
 1. Type your name in the top bar. It is stored with every image you submit and shows up on the leaderboard.
-2. Pick images. The app opens a random Danbooru picture to start with; six original illustrations sit in the list too and take over when you are offline. Add your own with the buttons above the list, or drop files or folders on the page. The menu above the list switches random pictures between Danbooru and nekos.best.
+2. Pick images. The app opens a random nekos.best picture to start with; six sample pictures sit in the list too and take over when you are offline. Add your own with the buttons above the list, or drop files or folders on the page. The menu above the list switches random pictures between nekos.best and Danbooru.
 3. Drag on the image to draw a box. Every new image starts with one default box (a square of 25% of the short side, in the middle), like the original app: adjust it or press <kbd>Del</kbd>.
 4. Press <kbd>Enter</kbd> to submit. After an online picture you get another one; after your own files or the samples, the next image in the list that still needs work.
 5. Export when you are finished. Submitted work survives a page reload; unsubmitted boxes are kept while the tab is open, and the browser warns you before you close it.
@@ -123,14 +123,14 @@ The export is unchanged from the original app, so old files import as they are. 
   "annotation_records": [
     {
       "session_id": "session_1793779304871",
-      "image_url": "samples/01-picnic.png",
-      "original_size": { "width": 1280, "height": 800 },
-      "display_size": { "width": 808, "height": 505 },
+      "image_url": "samples/01-picnic.webp",
+      "original_size": { "width": 1280, "height": 853 },
+      "display_size": { "width": 808, "height": 538 },
       "scale_factor": 0.63125,
       "annotator": "nat",
       "timestamp": "2026-11-04T08:01:44.871Z",
       "bounding_boxes": [
-        { "id": "box_1793779290112_k3j9x0a1b", "x": 540, "y": 300, "width": 200, "height": 200, "label": "anime_face" }
+        { "id": "box_1793779290112_k3j9x0a1b", "x": 533, "y": 320, "width": 213, "height": 213, "label": "anime_face" }
       ]
     }
   ]
@@ -145,7 +145,7 @@ The export is unchanged from the original app, so old files import as they are. 
 flowchart LR
   subgraph sources [Images]
     S[Bundled samples]
-    R[Danbooru rating:g<br/>or nekos.best]
+    R[nekos.best or<br/>Danbooru rating:g]
     L[Your files<br/>and folders]
   end
   S --> Q[Image list]
@@ -160,7 +160,7 @@ flowchart LR
 
 The browser keeps a few things in `localStorage`: `annotation_data` (submitted images, the same key the original app used), `userName`, `image-annotation:classes` and your choice of random source. Your own images are read straight from disk and never leave the browser.
 
-The app goes online only for random pictures: once when it opens, when you press <kbd>R</kbd>, and after you submit an online picture. Danbooru answers 20 general-audience posts per request; the app keeps them in memory and shows them one by one, so most pictures cost no extra request. If Danbooru is unreachable or rate-limiting, you get a message saying so, and the built-in illustrations carry on.
+The app goes online only for random pictures: once when it opens, when you press <kbd>R</kbd>, and after you submit an online picture. Each picture is one plain request with no custom headers (Danbooru may need up to three when its random pick is a video). If a source is down, rate-limiting or unreachable, you get a message with a short report code, for example `danbooru/http-503` or `nekos/network`, and the sample pictures carry on.
 
 ## Development
 
@@ -172,7 +172,6 @@ The app goes online only for random pictures: once when it opens, when you press
 | `npm run lint` | ESLint |
 | `npm test` | Unit tests (Vitest): geometry, undo, storage, every import/export format |
 | `npm run test:e2e` | Browser tests (Playwright) on a build served under `/image-annotation/` |
-| `npm run samples` | Redraw the sample illustrations and `docs/demo-annotations.json` |
 
 The end-to-end tests need a browser: run `npx playwright install chromium` once, or use an installed Edge or Chrome with `PW_CHANNEL=msedge npm run test:e2e`. `scripts/screenshots.mjs` regenerates the images in `docs/images/` from a running build.
 
@@ -182,7 +181,7 @@ CI on GitHub Actions lints, tests and builds every pull request, runs the browse
 
 ## Credits
 
-The six sample pictures are original illustrations drawn in code (`scripts/samples.mjs`); their boxes are in `docs/demo-annotations.json`. They are the only pictures in this repository and in the screenshots. Random pictures load straight from [Danbooru](https://danbooru.donmai.us) or [nekos.best](https://nekos.best) while you use the app, and each one is credited to its artist with links to the post and the original source.
+Random pictures load straight from [nekos.best](https://nekos.best) or [Danbooru](https://danbooru.donmai.us) while you use the app; none of them are stored in this repository. Each one is credited to its artist on the canvas, with links to the post and the original source.
 
 ## License
 
