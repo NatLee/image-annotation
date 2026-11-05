@@ -16,8 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "samples": "node scripts/samples.mjs"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "fflate": "^0.8.3",

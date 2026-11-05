@@ -66,12 +66,12 @@ describe('browser storage', () => {
     expect(loadClasses(store)).toEqual([{ name: 'cat', color: '#123456' }]);
   });
 
-  it('remembers the online source, defaulting to Danbooru', () => {
+  it('remembers the online source, defaulting to nekos.best', () => {
     const store = memoryStore({ [STORAGE_KEYS.onlineSource]: 'something-else' });
-    expect(loadOnlineSource(store)).toBe('danbooru');
-    saveOnlineSource(store, 'nekos');
     expect(loadOnlineSource(store)).toBe('nekos');
-    expect(loadOnlineSource(undefined)).toBe('danbooru');
+    saveOnlineSource(store, 'danbooru');
+    expect(loadOnlineSource(store)).toBe('danbooru');
+    expect(loadOnlineSource(undefined)).toBe('nekos');
   });
 
   it('"Clear all data" removes the key like v1 did', () => {

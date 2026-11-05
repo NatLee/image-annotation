@@ -4,8 +4,8 @@
  *   npm run build && npx vite preview --port 47180 --strictPort &
  *   PW_CHANNEL=msedge node scripts/screenshots.mjs http://localhost:47180/
  *
- * Writes docs/images/editor.png, export.png and workflow.gif (the GIF needs
- * ImageMagick's `magick` on PATH), then renders docs/images/cover.html to cover.png.
+ * Writes docs/images/editor.jpg, export.png and workflow.gif (the GIF needs
+ * ImageMagick's `magick` on PATH), then renders docs/images/cover.html to cover.png (quantised to 256 colours to stay small).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
@@ -37,6 +37,8 @@ async function openApp(viewport, records) {
   return page;
 }
 
+const fileOf = (record) => record.image_url.replace(/^samples\//, '');
+
 async function openImage(page, name) {
   await page.getByTestId('image-list').getByRole('button', { name }).click();
   await page.waitForTimeout(500);
@@ -54,12 +56,13 @@ const hideToasts = (page) => page.addStyleTag({ content: '[aria-live] { display:
 {
   const page = await openApp({ width: 1440, height: 900 }, demo.annotation_records.slice(0, 4));
   await hideToasts(page);
-  await openImage(page, '01-picnic.png');
-  const cat = demo.annotation_records[0].bounding_boxes[2];
-  const centre = await toScreen(page, demo.annotation_records[0].original_size, cat.x + cat.width / 2, cat.y + cat.height / 2);
-  await page.mouse.click(centre.x, centre.y); // select the cat
+  const first = demo.annotation_records[0];
+  await openImage(page, fileOf(first));
+  const head = first.bounding_boxes.find((b) => b.label === 'anime_face');
+  const centre = await toScreen(page, first.original_size, head.x + head.width / 2, head.y + head.height / 2);
+  await page.mouse.click(centre.x, centre.y); // select a head
   await page.mouse.move(700, 560);
-  await page.screenshot({ path: out('editor.png') });
+  await page.screenshot({ path: out('editor.jpg'), type: 'jpeg', quality: 85 });
 
   await page.getByRole('button', { name: 'Export annotations' }).click();
   await page.getByRole('dialog', { name: 'Export annotations' }).getByText('YOLO', { exact: true }).click();
@@ -70,12 +73,13 @@ const hideToasts = (page) => page.addStyleTag({ content: '[aria-live] { display:
 
 /* ------------------------------------------------------- workflow GIF */
 {
-  // Four done, so submitting the group photo moves on to the beach scene.
+  // Four done, so submitting the group photo moves on to the next picture still to do.
+  const group = demo.annotation_records[5];
   const page = await openApp({ width: 1280, height: 760 }, demo.annotation_records.slice(0, 4));
-  await openImage(page, '06-group-photo.png');
+  await openImage(page, fileOf(group));
   await page.waitForTimeout(3800); // let the import toast fade
-  const size = { width: 1920, height: 1080 };
-  const faces = demo.annotation_records[5].bounding_boxes;
+  const size = group.original_size;
+  const faces = group.bounding_boxes.filter((b) => b.label === 'anime_face').sort((a, b) => a.x - b.x);
   const dir = await mkdtemp(join(tmpdir(), 'image-annotation-gif-'));
   const frames = [];
   const shot = async (delay) => {
@@ -117,7 +121,7 @@ const hideToasts = (page) => page.addStyleTag({ content: '[aria-live] { display:
   await page.close();
 
   const args = frames.flatMap((f) => ['-delay', String(f.delay), f.path]);
-  execFileSync('magick', [...args, '-loop', '0', '-resize', '960x', '-dither', 'None', '-layers', 'Optimize', out('workflow.gif')]);
+  execFileSync('magick', [...args, '-loop', '0', '-resize', '800x', '-dither', 'None', '-fuzz', '3%', '-layers', 'Optimize', out('workflow.gif')]);
   await rm(dir, { recursive: true, force: true });
 }
 
@@ -127,8 +131,9 @@ const hideToasts = (page) => page.addStyleTag({ content: '[aria-live] { display:
   await page.goto(pathToFileURL(out('cover.html')).href);
   await page.waitForTimeout(300);
   await page.screenshot({ path: out('cover.png') });
+  execFileSync('magick', [out('cover.png'), '-dither', 'FloydSteinberg', '-colors', '256', `PNG8:${out('cover.png')}`]);
   await page.close();
 }
 
 await browser.close();
-console.log('wrote docs/images/{editor.png, export.png, workflow.gif, cover.png}');
+console.log('wrote docs/images/{editor.jpg, export.png, workflow.gif, cover.png}');

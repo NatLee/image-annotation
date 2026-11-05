@@ -107,7 +107,7 @@ export default function App() {
 
   /**
    * One online image from the chosen source. When that fails, say why; with
-   * `fallback`, open the bundled illustrations instead (they work offline).
+   * `fallback`, open the bundled sample pictures instead (they work offline).
    */
   const random = useCallback(
     async ({ fallback = false } = {}) => {
@@ -119,8 +119,8 @@ export default function App() {
         const image = await source.next();
         dispatch({ type: 'images/add', items: [image], open: true });
       } catch (error) {
-        const reason = error instanceof OnlineSourceError ? error.message : `Could not reach ${source.name}.`;
-        notify('error', `No picture from ${source.name}`, `${reason} The built-in illustrations work offline.`);
+        const reason = error instanceof OnlineSourceError ? `${error.message} Report code: ${error.code}` : `Something went wrong. Report code: ${source.id}/unknown`;
+        notify('error', `No picture from ${source.name}`, `${reason}. The built-in pictures work offline.`);
         const { state: s } = latest.current;
         const sample = nextPendingKey(s) ?? s.images[0]?.key;
         if (fallback && !s.currentKey && sample) dispatch({ type: 'image/open', key: sample });

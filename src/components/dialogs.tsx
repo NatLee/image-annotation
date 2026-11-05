@@ -54,14 +54,14 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
       </div>
       <p className="mt-6 text-xs leading-relaxed text-ink-500">
         Your annotations stay in this browser (local storage) until you export them. Random pictures come from{' '}
+        <a className="text-ink-300 underline underline-offset-2" href={NEKOS_BEST.homepage} target="_blank" rel="noreferrer">
+          {NEKOS_BEST.name}
+        </a>{' '}
+        or, if you pick it above the image list,{' '}
         <a className="text-ink-300 underline underline-offset-2" href={DANBOORU.homepage} target="_blank" rel="noreferrer">
           {DANBOORU.name}
         </a>{' '}
-        (general-audience posts only) or{' '}
-        <a className="text-ink-300 underline underline-offset-2" href={NEKOS_BEST.homepage} target="_blank" rel="noreferrer">
-          {NEKOS_BEST.name}
-        </a>
-        , load straight from their servers and are credited on the canvas. The built-in illustrations work offline. Source code:{' '}
+        (general-audience posts only). They load straight from those servers and are credited on the canvas. The built-in pictures work offline. Source code:{' '}
         <a className="text-ink-300 underline underline-offset-2" href={REPO_URL} target="_blank" rel="noreferrer">
           {REPO_URL.replace('https://', '')}
         </a>

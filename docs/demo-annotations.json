@@ -2,7 +2,7 @@
   "export_info": {
     "export_date": "2026-11-04T08:15:00.000Z",
     "total_images": 6,
-    "total_annotations": 16,
+    "total_annotations": 33,
     "data_range": {
       "first_annotation": "2026-11-04T08:00:00.000Z",
       "last_annotation": "2026-11-04T08:15:00.000Z"
@@ -11,14 +11,14 @@
   "annotation_records": [
     {
       "session_id": "session_1793779200000",
-      "image_url": "samples/01-picnic.png",
+      "image_url": "samples/01-picnic.webp",
       "original_size": {
         "width": 1280,
-        "height": 800
+        "height": 853
       },
       "display_size": {
         "width": 1280,
-        "height": 800
+        "height": 853
       },
       "scale_factor": 1,
       "annotator": "nat",
@@ -26,40 +26,48 @@
       "bounding_boxes": [
         {
           "id": "box_1793779200000_picn0",
-          "label": "anime_face",
-          "x": 259,
-          "y": 279,
-          "width": 242,
-          "height": 231
+          "x": 812,
+          "y": 67,
+          "width": 264,
+          "height": 247,
+          "label": "anime_face"
         },
         {
           "id": "box_1793779200000_picn1",
-          "label": "anime_face",
-          "x": 656,
-          "y": 326,
-          "width": 209,
-          "height": 200
+          "x": 219,
+          "y": 26,
+          "width": 272,
+          "height": 259,
+          "label": "anime_face"
         },
         {
           "id": "box_1793779200000_picn2",
-          "label": "cat",
-          "x": 970,
-          "y": 520,
-          "width": 140,
-          "height": 140
+          "x": 35,
+          "y": 4,
+          "width": 587,
+          "height": 847,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779200000_picn3",
+          "x": 736,
+          "y": 46,
+          "width": 509,
+          "height": 800,
+          "label": "person"
         }
       ]
     },
     {
       "session_id": "session_1793779380000",
-      "image_url": "samples/02-classroom.png",
+      "image_url": "samples/02-classroom.webp",
       "original_size": {
-        "width": 1200,
-        "height": 900
+        "width": 1280,
+        "height": 853
       },
       "display_size": {
-        "width": 1200,
-        "height": 900
+        "width": 1280,
+        "height": 853
       },
       "scale_factor": 1,
       "annotator": "mika",
@@ -67,24 +75,64 @@
       "bounding_boxes": [
         {
           "id": "box_1793779380000_clas0",
-          "label": "anime_face",
-          "x": 358,
-          "y": 278,
-          "width": 484,
-          "height": 462
+          "x": 36,
+          "y": 59,
+          "width": 298,
+          "height": 290,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779380000_clas1",
+          "x": 521,
+          "y": 126,
+          "width": 239,
+          "height": 240,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779380000_clas2",
+          "x": 929,
+          "y": 194,
+          "width": 255,
+          "height": 235,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779380000_clas3",
+          "x": 865,
+          "y": 172,
+          "width": 415,
+          "height": 562,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779380000_clas4",
+          "x": 0,
+          "y": 46,
+          "width": 415,
+          "height": 791,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779380000_clas5",
+          "x": 390,
+          "y": 104,
+          "width": 476,
+          "height": 627,
+          "label": "person"
         }
       ]
     },
     {
       "session_id": "session_1793779560000",
-      "image_url": "samples/03-night-festival.png",
+      "image_url": "samples/03-night-festival.webp",
       "original_size": {
-        "width": 1600,
-        "height": 900
+        "width": 1280,
+        "height": 853
       },
       "display_size": {
-        "width": 1600,
-        "height": 900
+        "width": 1280,
+        "height": 853
       },
       "scale_factor": 1,
       "annotator": "nat",
@@ -92,40 +140,72 @@
       "bounding_boxes": [
         {
           "id": "box_1793779560000_nigh0",
-          "label": "anime_face",
-          "x": 215,
-          "y": 385,
-          "width": 231,
-          "height": 221
+          "x": 511,
+          "y": 90,
+          "width": 232,
+          "height": 236,
+          "label": "anime_face"
         },
         {
           "id": "box_1793779560000_nigh1",
-          "label": "anime_face",
-          "x": 668,
-          "y": 338,
-          "width": 264,
-          "height": 252
+          "x": 862,
+          "y": 90,
+          "width": 236,
+          "height": 240,
+          "label": "anime_face"
         },
         {
           "id": "box_1793779560000_nigh2",
-          "label": "anime_face",
-          "x": 1160,
-          "y": 400,
+          "x": 239,
+          "y": 94,
           "width": 220,
-          "height": 210
+          "height": 234,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779560000_nigh3",
+          "x": 25,
+          "y": 198,
+          "width": 80,
+          "height": 87,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779560000_nigh4",
+          "x": 445,
+          "y": 65,
+          "width": 378,
+          "height": 786,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779560000_nigh5",
+          "x": 793,
+          "y": 65,
+          "width": 414,
+          "height": 788,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779560000_nigh6",
+          "x": 71,
+          "y": 69,
+          "width": 420,
+          "height": 783,
+          "label": "person"
         }
       ]
     },
     {
       "session_id": "session_1793779740000",
-      "image_url": "samples/04-portrait.png",
+      "image_url": "samples/04-portrait.webp",
       "original_size": {
-        "width": 900,
-        "height": 1200
+        "width": 853,
+        "height": 1280
       },
       "display_size": {
-        "width": 900,
-        "height": 1200
+        "width": 853,
+        "height": 1280
       },
       "scale_factor": 1,
       "annotator": "yuki",
@@ -133,65 +213,81 @@
       "bounding_boxes": [
         {
           "id": "box_1793779740000_port0",
-          "label": "anime_face",
-          "x": 175,
-          "y": 198,
-          "width": 550,
-          "height": 613
+          "x": 328,
+          "y": 15,
+          "width": 209,
+          "height": 194,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793779740000_port1",
+          "x": 101,
+          "y": 1,
+          "width": 669,
+          "height": 1279,
+          "label": "person"
         }
       ]
     },
     {
       "session_id": "session_1793779920000",
-      "image_url": "samples/05-beach.png",
+      "image_url": "samples/05-cafe.webp",
       "original_size": {
-        "width": 1440,
-        "height": 960
+        "width": 1280,
+        "height": 853
       },
       "display_size": {
-        "width": 1440,
-        "height": 960
+        "width": 1280,
+        "height": 853
       },
       "scale_factor": 1,
       "annotator": "mika",
       "timestamp": "2026-11-04T08:12:00.000Z",
       "bounding_boxes": [
         {
-          "id": "box_1793779920000_beac0",
-          "label": "anime_face",
-          "x": 288,
-          "y": 428,
-          "width": 264,
-          "height": 252
+          "id": "box_1793779920000_cafe0",
+          "x": 843,
+          "y": 57,
+          "width": 259,
+          "height": 267,
+          "label": "anime_face"
         },
         {
-          "id": "box_1793779920000_beac1",
-          "label": "anime_face",
-          "x": 685,
-          "y": 465,
-          "width": 231,
-          "height": 221
+          "id": "box_1793779920000_cafe1",
+          "x": 205,
+          "y": 90,
+          "width": 298,
+          "height": 267,
+          "label": "anime_face"
         },
         {
-          "id": "box_1793779920000_beac2",
-          "label": "cat",
-          "x": 1018,
-          "y": 699,
-          "width": 124,
-          "height": 124
+          "id": "box_1793779920000_cafe2",
+          "x": 42,
+          "y": 68,
+          "width": 553,
+          "height": 777,
+          "label": "person"
+        },
+        {
+          "id": "box_1793779920000_cafe3",
+          "x": 735,
+          "y": 42,
+          "width": 543,
+          "height": 713,
+          "label": "person"
         }
       ]
     },
     {
       "session_id": "session_1793780100000",
-      "image_url": "samples/06-group-photo.png",
+      "image_url": "samples/06-group-photo.webp",
       "original_size": {
-        "width": 1920,
-        "height": 1080
+        "width": 1280,
+        "height": 853
       },
       "display_size": {
-        "width": 1920,
-        "height": 1080
+        "width": 1280,
+        "height": 853
       },
       "scale_factor": 1,
       "annotator": "nat",
@@ -199,43 +295,83 @@
       "bounding_boxes": [
         {
           "id": "box_1793780100000_grou0",
-          "label": "anime_face",
-          "x": 174,
-          "y": 434,
-          "width": 253,
-          "height": 242
+          "x": 580,
+          "y": 147,
+          "width": 177,
+          "height": 183,
+          "label": "anime_face"
         },
         {
           "id": "box_1793780100000_grou1",
-          "label": "anime_face",
-          "x": 492,
-          "y": 372,
-          "width": 297,
-          "height": 284
+          "x": 748,
+          "y": 205,
+          "width": 175,
+          "height": 169,
+          "label": "anime_face"
         },
         {
           "id": "box_1793780100000_grou2",
-          "label": "anime_face",
-          "x": 814,
-          "y": 294,
-          "width": 352,
-          "height": 336
+          "x": 937,
+          "y": 255,
+          "width": 175,
+          "height": 172,
+          "label": "anime_face"
         },
         {
           "id": "box_1793780100000_grou3",
-          "label": "anime_face",
-          "x": 1197,
-          "y": 342,
-          "width": 286,
-          "height": 319
+          "x": 224,
+          "y": 5,
+          "width": 192,
+          "height": 187,
+          "label": "anime_face"
         },
         {
           "id": "box_1793780100000_grou4",
-          "label": "anime_face",
-          "x": 1545,
-          "y": 465,
-          "width": 231,
-          "height": 221
+          "x": 383,
+          "y": 160,
+          "width": 176,
+          "height": 187,
+          "label": "anime_face"
+        },
+        {
+          "id": "box_1793780100000_grou5",
+          "x": 931,
+          "y": 235,
+          "width": 348,
+          "height": 618,
+          "label": "person"
+        },
+        {
+          "id": "box_1793780100000_grou6",
+          "x": 0,
+          "y": 3,
+          "width": 432,
+          "height": 850,
+          "label": "person"
+        },
+        {
+          "id": "box_1793780100000_grou7",
+          "x": 718,
+          "y": 187,
+          "width": 267,
+          "height": 666,
+          "label": "person"
+        },
+        {
+          "id": "box_1793780100000_grou8",
+          "x": 254,
+          "y": 129,
+          "width": 319,
+          "height": 723,
+          "label": "person"
+        },
+        {
+          "id": "box_1793780100000_grou9",
+          "x": 481,
+          "y": 131,
+          "width": 289,
+          "height": 722,
+          "label": "person"
         }
       ]
     }
